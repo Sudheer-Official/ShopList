@@ -20,10 +20,13 @@ private val DarkColorScheme = darkColorScheme(
 
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF6200EE),
+    onPrimary = Color.White,
     secondary = Color(0xFF03DAC6),
     background = Color(0xFFFFFFFF),
+    surface = Color.White,
+    onSurface = Color.Black,
+    onSurfaceVariant = Color(0xFF757575)
 )
-
 @Composable
 fun ShopListTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

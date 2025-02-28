@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.shoplist.ui.screens
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,18 +19,10 @@ import kotlinx.coroutines.delay
 import uk.ac.tees.mad.shoplist.R
 
 @Composable
-fun SplashScreen() {
-    val scale = remember { Animatable(0f) }
+fun SplashScreen(
+    scale:  Animatable<Float, AnimationVector1D>
+) {
 
-    // Animation effect
-    LaunchedEffect(Unit) {
-        scale.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 800)
-        )
-        delay(1000L)
-        // TODO: Navigate to Home Screen
-    }
 
     Box(
         modifier = Modifier
