@@ -16,6 +16,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import uk.ac.tees.mad.shoplist.ui.screens.HomeScreen
 import uk.ac.tees.mad.shoplist.ui.screens.SplashScreen
@@ -35,22 +38,28 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppContent() {
-    val scale = remember { Animatable(0f) }
-    val showSplash = remember { mutableStateOf(true) }
 
-    // Animation effect
-    LaunchedEffect(Unit) {
-        scale.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 800)
-        )
-        delay(1000L) // Total splash duration (800ms animation + 1000ms delay)
-        showSplash.value = false
-    }
+    val navController = rememberNavController()
 
-    if (showSplash.value) {
-        SplashScreen(scale = scale)
-    } else {
-        HomeScreen()
+    NavHost(navController = navController, startDestination = "splash") {
+        composable("splash") {
+            SplashScreen(
+                onSplashFinished = {
+                    navController.navigate("home") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable("home") {
+            HomeScreen(
+                onListClick = { listId ->
+                    // TODO: Navigate to list detail
+                },
+                onAddListClick = {
+                    // TODO: Navigate to create new list
+                }
+            )
+        }
     }
 }

@@ -24,8 +24,10 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
-
+fun HomeScreen(
+    onListClick: (Int) -> Unit,
+    onAddListClick: () -> Unit
+) {
     val sampleLists = listOf(
         ShoppingList(1, "Weekly Groceries", 8, 2, "Mar 22, 2025", "Food"),
         ShoppingList(2, "Hardware Supplies", 5, 0, "Mar 21, 2025", "Home"),
@@ -49,12 +51,12 @@ fun HomeScreen() {
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                ),
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Navigate to create new list */ },
+                onClick = onAddListClick,
                 containerColor = MaterialTheme.colorScheme.secondary,
                 shape = CircleShape,
                 modifier = Modifier
@@ -73,6 +75,7 @@ fun HomeScreen() {
     ) { paddingValues ->
         ShoppingListContent(
             shoppingLists = sampleLists,
+            onListClick = onListClick,
             modifier = Modifier.padding(paddingValues)
         )
     }
@@ -81,6 +84,7 @@ fun HomeScreen() {
 @Composable
 fun ShoppingListContent(
     shoppingLists: List<ShoppingList>,
+    onListClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (shoppingLists.isEmpty()) {
@@ -109,18 +113,24 @@ fun ShoppingListContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(shoppingLists) { list ->
-                ShoppingListItem(list = list)
+                ShoppingListItem(
+                    list = list,
+                    onClick = { onListClick(list.id) }
+                )
             }
         }
     }
 }
 
 @Composable
-fun ShoppingListItem(list: ShoppingList) {
+fun ShoppingListItem(
+    list: ShoppingList,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* TODO: Navigate to List Detail */ }
+            .clickable(onClick = onClick)
             .shadow(4.dp, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -133,7 +143,6 @@ fun ShoppingListItem(list: ShoppingList) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Category Indicator
             Box(
                 modifier = Modifier
                     .size(40.dp)
@@ -181,9 +190,9 @@ fun ShoppingListItem(list: ShoppingList) {
 @Composable
 fun getCategoryColor(category: String): Color {
     return when (category) {
-        "Food" -> Color(0xFF4CAF50) // Green
-        "Home" -> Color(0xFF2196F3) // Blue
-        "Personal" -> Color(0xFFE91E63) // Pink
-        else -> Color(0xFF9E9E9E) // Grey
+        "Food" -> Color(0xFF4CAF50)
+        "Home" -> Color(0xFF2196F3)
+        "Personal" -> Color(0xFFE91E63)
+        else -> Color(0xFF9E9E9E)
     }
 }

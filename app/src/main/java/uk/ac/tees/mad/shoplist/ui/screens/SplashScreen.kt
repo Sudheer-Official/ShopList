@@ -19,10 +19,17 @@ import kotlinx.coroutines.delay
 import uk.ac.tees.mad.shoplist.R
 
 @Composable
-fun SplashScreen(
-    scale:  Animatable<Float, AnimationVector1D>
-) {
+fun SplashScreen(onSplashFinished: () -> Unit) {
+    val scale = remember { Animatable(0f) }
 
+    LaunchedEffect(Unit) {
+        scale.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 800)
+        )
+        delay(1000L)
+        onSplashFinished()
+    }
 
     Box(
         modifier = Modifier
