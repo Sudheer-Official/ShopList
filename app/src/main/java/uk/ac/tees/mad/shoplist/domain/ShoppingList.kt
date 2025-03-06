@@ -1,4 +1,4 @@
-package uk.ac.tees.mad.shoplist.ui.screens
+package uk.ac.tees.mad.shoplist.domain
 
 
 data class ShoppingList(

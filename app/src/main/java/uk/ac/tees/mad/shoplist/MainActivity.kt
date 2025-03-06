@@ -16,11 +16,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import kotlinx.coroutines.delay
 import uk.ac.tees.mad.shoplist.ui.screens.HomeScreen
+import uk.ac.tees.mad.shoplist.ui.screens.ListDetailScreen
 import uk.ac.tees.mad.shoplist.ui.screens.SplashScreen
 import uk.ac.tees.mad.shoplist.ui.theme.ShopListTheme
 
@@ -54,11 +57,21 @@ fun AppContent() {
         composable("home") {
             HomeScreen(
                 onListClick = { listId ->
-                    // TODO: Navigate to list detail
+                    navController.navigate("listDetail/$listId")
                 },
                 onAddListClick = {
                     // TODO: Navigate to create new list
                 }
+            )
+        }
+        composable(
+            "listDetail/{listId}",
+            arguments = listOf(navArgument("listId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val listId = backStackEntry.arguments?.getInt("listId") ?: 0
+            ListDetailScreen(
+                listId = listId,
+                onBackClick = { navController.popBackStack() }
             )
         }
     }
