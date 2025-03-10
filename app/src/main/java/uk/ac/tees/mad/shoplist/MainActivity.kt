@@ -13,6 +13,7 @@ import androidx.navigation.toRoute
 import uk.ac.tees.mad.shoplist.domain.Dest
 import uk.ac.tees.mad.shoplist.domain.SubGraph
 import uk.ac.tees.mad.shoplist.ui.screens.AddEditItemScreen
+import uk.ac.tees.mad.shoplist.ui.screens.CreateNewListScreen
 import uk.ac.tees.mad.shoplist.ui.screens.HomeScreen
 import uk.ac.tees.mad.shoplist.ui.screens.ListDetailScreen
 import uk.ac.tees.mad.shoplist.ui.screens.SplashScreen
@@ -52,13 +53,20 @@ fun AppContent() {
                     navController.navigate(Dest.ListDetailScreen(listId))
                 }, onAddListClick = {
                     // TODO: Navigate to create new list
-                    navController.navigate(Dest.AddEditItemScreen)
+                    navController.navigate(Dest.CreateNewListScreen)
                 })
             }
             composable<Dest.ListDetailScreen> {
                 val args = it.toRoute<Dest.ListDetailScreen>()
-                ListDetailScreen(
-                    listId = args.listId, onBackClick = {
+                ListDetailScreen(listId = args.listId, onBackClick = {
+                    navController.popBackStack()
+                }, onAddClick = {
+                    navController.navigate(Dest.AddEditItemScreen)
+                })
+            }
+            composable<Dest.CreateNewListScreen> {
+                CreateNewListScreen(
+                    onBackClick = {
                         navController.popBackStack()
                     })
             }

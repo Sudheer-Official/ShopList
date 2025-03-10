@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEditItemScreen(
+fun CreateNewListScreen(
 //    listId: Int,
 //    itemId: Int,
     onBackClick: () -> Unit
@@ -30,7 +30,7 @@ fun AddEditItemScreen(
             TopAppBar(
                 title = {
                 Text(
-                    text = "Add/Edit Item", fontWeight = FontWeight.Bold
+                    text = "Create New List", fontWeight = FontWeight.Bold
                 )
             }, navigationIcon = {
                 IconButton(onClick = onBackClick) {
@@ -47,7 +47,7 @@ fun AddEditItemScreen(
             )
         }, containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        AddEditItemContent(
+        CreateNewListScreenContent(
 //            listId = listId,
 //            itemId = itemId,
             modifier = Modifier.padding(paddingValues)
@@ -56,7 +56,7 @@ fun AddEditItemScreen(
 }
 
 @Composable
-fun AddEditItemContent(
+fun CreateNewListScreenContent(
 //    listId: Int,
 //    itemId: Int,
     modifier: Modifier = Modifier
@@ -65,6 +65,6 @@ fun AddEditItemContent(
     Box(
         modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
     ) {
-        Text(text = "Add/Edit Item Screen")
+        Text(text = "CreateNewList Screen")
     }
 }
