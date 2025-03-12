@@ -10,8 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import uk.ac.tees.mad.shoplist.domain.Dest
-import uk.ac.tees.mad.shoplist.domain.SubGraph
+import uk.ac.tees.mad.shoplist.ui.navigation.Dest
+import uk.ac.tees.mad.shoplist.ui.navigation.SubGraph
 import uk.ac.tees.mad.shoplist.ui.screens.AddEditItemScreen
 import uk.ac.tees.mad.shoplist.ui.screens.CreateNewListScreen
 import uk.ac.tees.mad.shoplist.ui.screens.HomeScreen

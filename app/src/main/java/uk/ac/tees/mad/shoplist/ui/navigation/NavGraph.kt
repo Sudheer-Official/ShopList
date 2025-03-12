@@ -1,4 +1,4 @@
-package uk.ac.tees.mad.shoplist.domain
+package uk.ac.tees.mad.shoplist.ui.navigation
 
 import kotlinx.serialization.Serializable
 
