@@ -27,6 +27,6 @@ sealed class Dest {
     data object AddEditItemScreen : Dest()
 
     @Serializable
-    data object CreateNewListScreen : Dest()
+    data class AddEditListScreen(val listId: Int) : Dest()
 
 }

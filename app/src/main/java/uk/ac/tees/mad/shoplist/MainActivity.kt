@@ -13,7 +13,7 @@ import androidx.navigation.toRoute
 import uk.ac.tees.mad.shoplist.ui.navigation.Dest
 import uk.ac.tees.mad.shoplist.ui.navigation.SubGraph
 import uk.ac.tees.mad.shoplist.ui.screens.AddEditItemScreen
-import uk.ac.tees.mad.shoplist.ui.screens.CreateNewListScreen
+import uk.ac.tees.mad.shoplist.ui.screens.AddEditListScreen
 import uk.ac.tees.mad.shoplist.ui.screens.HomeScreen
 import uk.ac.tees.mad.shoplist.ui.screens.ListDetailScreen
 import uk.ac.tees.mad.shoplist.ui.screens.SplashScreen
@@ -53,7 +53,10 @@ fun AppContent() {
                     navController.navigate(Dest.ListDetailScreen(listId))
                 }, onAddListClick = {
                     // TODO: Navigate to create new list
-                    navController.navigate(Dest.CreateNewListScreen)
+                    navController.navigate(Dest.AddEditListScreen(listId = 0))
+                }, onEditListClick = {listId ->
+                    // TODO: Navigate to edit list
+                    navController.navigate(Dest.AddEditListScreen(listId = listId))
                 })
             }
             composable<Dest.ListDetailScreen> {
@@ -64,8 +67,10 @@ fun AppContent() {
                     navController.navigate(Dest.AddEditItemScreen)
                 })
             }
-            composable<Dest.CreateNewListScreen> {
-                CreateNewListScreen(
+            composable<Dest.AddEditListScreen> {
+                val args = it.toRoute<Dest.ListDetailScreen>()
+                AddEditListScreen(
+                    listId = args.listId,
                     onBackClick = {
                         navController.popBackStack()
                     })
