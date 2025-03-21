@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import uk.ac.tees.mad.shoplist.domain.ShoppingItem
 import uk.ac.tees.mad.shoplist.domain.ShoppingList
+import uk.ac.tees.mad.shoplist.ui.utils.getCategoryColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

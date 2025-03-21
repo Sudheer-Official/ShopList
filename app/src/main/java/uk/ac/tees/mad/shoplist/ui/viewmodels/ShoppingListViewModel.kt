@@ -25,7 +25,7 @@ class ShoppingListViewModel(
     val shoppingList: StateFlow<ShoppingListEntity?> = _shoppingList.asStateFlow()
 
     // Function to retrieve all shopping lists
-    fun getAllShoppingLists(){
+    fun getAllShoppingLists() {
         viewModelScope.launch {
             shoppingListRepository.getAllShoppingLists().collectLatest { shoppingLists ->
                 _allShoppingLists.value = shoppingLists

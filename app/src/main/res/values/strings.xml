@@ -2,4 +2,5 @@
     <string name="app_name">ShopList</string>
     <string name="create_list">Create List</string>
     <string name="edit_list">Edit List</string>
+    <string name="update_list">Update List</string>
 </resources>
