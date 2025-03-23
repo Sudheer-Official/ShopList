@@ -7,17 +7,25 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
+import uk.ac.tees.mad.shoplist.data.repository.ShoppingItemRepository
 import uk.ac.tees.mad.shoplist.data.repository.ShoppingListRepository
 import uk.ac.tees.mad.shoplist.ui.utils.LoadingState
 
-class AddEditListViewModel(
-    private val shoppingListRepository: ShoppingListRepository
+class ListDetailViewModel(
+    private val shoppingListRepository: ShoppingListRepository,
+    private val shoppingItemRepository: ShoppingItemRepository
 ) : ViewModel() {
 
     private val _shoppingList =
         MutableStateFlow<LoadingState<ShoppingListEntity>>(LoadingState.Loading)
     val shoppingList: StateFlow<LoadingState<ShoppingListEntity>> = _shoppingList.asStateFlow()
+
+    private val _shoppingItems =
+        MutableStateFlow<LoadingState<List<ShoppingItemEntity>>>(LoadingState.Loading)
+    val shoppingItems: StateFlow<LoadingState<List<ShoppingItemEntity>>> =
+        _shoppingItems.asStateFlow()
 
     fun getShoppingListById(id: Int = 0) {
         viewModelScope.launch {
@@ -35,6 +43,14 @@ class AddEditListViewModel(
                 shoppingListRepository.getShoppingListById(id).collectLatest { shoppingList ->
                     _shoppingList.value = LoadingState.Success(shoppingList)
                 }
+            }
+        }
+    }
+
+    fun getShoppingItemsByListId(listId: Int) {
+        viewModelScope.launch {
+            shoppingItemRepository.getShoppingItemsByListId(listId).collectLatest { shoppingItems ->
+                _shoppingItems.value = LoadingState.Success(shoppingItems)
             }
         }
     }

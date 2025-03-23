@@ -1,7 +1,6 @@
 package uk.ac.tees.mad.shoplist.ui.screens
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,8 +23,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
 
     LaunchedEffect(Unit) {
         scale.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 800)
+            targetValue = 1f, animationSpec = tween(durationMillis = 800)
         )
         delay(1000L)
         onSplashFinished()
@@ -40,8 +38,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
         Image(
             painter = painterResource(id = R.drawable.ic_shoplist_logo),
             contentDescription = "ShopList Logo",
-            modifier = Modifier
-                .scale(scale.value)
+            modifier = Modifier.scale(scale.value)
         )
     }
 }

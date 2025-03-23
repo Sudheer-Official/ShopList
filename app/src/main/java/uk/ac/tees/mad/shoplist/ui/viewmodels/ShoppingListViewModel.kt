@@ -21,22 +21,12 @@ class ShoppingListViewModel(
     private val _allShoppingLists = MutableStateFlow<List<ShoppingListEntity>>(emptyList())
     val allShoppingLists: StateFlow<List<ShoppingListEntity>> = _allShoppingLists.asStateFlow()
 
-    private val _shoppingList = MutableStateFlow<ShoppingListEntity?>(null)
-    val shoppingList: StateFlow<ShoppingListEntity?> = _shoppingList.asStateFlow()
 
     // Function to retrieve all shopping lists
     fun getAllShoppingLists() {
         viewModelScope.launch {
             shoppingListRepository.getAllShoppingLists().collectLatest { shoppingLists ->
                 _allShoppingLists.value = shoppingLists
-            }
-        }
-    }
-
-    fun getShoppingListById(id: Int) {
-        viewModelScope.launch {
-            shoppingListRepository.getShoppingListById(id).collectLatest { shoppingList ->
-                _shoppingList.value = shoppingList
             }
         }
     }

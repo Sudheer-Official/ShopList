@@ -38,7 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,7 +62,7 @@ import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingListViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onListClick: (Int) -> Unit,
+    onListClick: (Int, String) -> Unit,
     onAddListClick: () -> Unit,
     onEditListClick: (Int) -> Unit,
     shoppingListViewModel: ShoppingListViewModel = koinViewModel<ShoppingListViewModel>()
@@ -131,16 +131,16 @@ fun ShoppingListContent(
     //shoppingLists: List<ShoppingList>,
     shoppingLists: List<ShoppingListEntity>,
     shoppingListViewModel: ShoppingListViewModel,
-    onListClick: (Int) -> Unit,
+    onListClick: (Int, String) -> Unit,
     onEditListClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val haptics = LocalHapticFeedback.current
 
-    var longClickedList by rememberSaveable { mutableStateOf<ShoppingListEntity?>(null) }
+    var longClickedList by remember { mutableStateOf<ShoppingListEntity?>(null) }
 
-    var showListActionSheet by rememberSaveable { mutableStateOf(false) }
-    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+    var showListActionSheet by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
 
     AnimatedVisibility(showDeleteDialog) {
@@ -186,11 +186,14 @@ fun ShoppingListContent(
 //                })
 //            }
             items(shoppingLists) {
-                ShoppingListItem(list = it, onClick = { onListClick(it.id) }, onLongClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                    longClickedList = it
-                    showListActionSheet = true
-                })
+                ShoppingListItem(
+                    list = it,
+                    onClick = { onListClick(it.id, it.title) },
+                    onLongClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        longClickedList = it
+                        showListActionSheet = true
+                    })
             }
         }
         if (showListActionSheet && longClickedList != null) {
@@ -198,7 +201,7 @@ fun ShoppingListContent(
                 showListActionSheet = false
                 longClickedList = null
             }, onViewClick = {
-                onListClick(longClickedList?.id ?: 0)
+                onListClick(longClickedList?.id ?: 0, longClickedList?.title ?: "")
                 showListActionSheet = false
                 longClickedList = null
             }, onEditClick = {

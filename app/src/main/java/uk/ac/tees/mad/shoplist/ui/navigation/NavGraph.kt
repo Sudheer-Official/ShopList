@@ -21,10 +21,10 @@ sealed class Dest {
     data object HomeScreen : Dest()
 
     @Serializable
-    data class ListDetailScreen(val listId: Int) : Dest()
+    data class ListDetailScreen(val listId: Int, val listTitle: String) : Dest()
 
     @Serializable
-    data object AddEditItemScreen : Dest()
+    data class AddEditItemScreen(val listId: Int, val listTitle: String) : Dest()
 
     @Serializable
     data class AddEditListScreen(val listId: Int) : Dest()

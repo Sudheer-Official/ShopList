@@ -49,8 +49,8 @@ fun AppContent() {
         }
         navigation<SubGraph.Home>(startDestination = Dest.HomeScreen) {
             composable<Dest.HomeScreen> {
-                HomeScreen(onListClick = { listId ->
-                    navController.navigate(Dest.ListDetailScreen(listId))
+                HomeScreen(onListClick = { listId, listTitle ->
+                    navController.navigate(Dest.ListDetailScreen(listId, listTitle))
                 }, onAddListClick = {
                     // TODO: Navigate to create new list
                     navController.navigate(Dest.AddEditListScreen(listId = 0))
@@ -61,14 +61,17 @@ fun AppContent() {
             }
             composable<Dest.ListDetailScreen> {
                 val args = it.toRoute<Dest.ListDetailScreen>()
-                ListDetailScreen(listId = args.listId, onBackClick = {
+                ListDetailScreen(
+                    listId = args.listId,
+                    listTitle = args.listTitle,
+                    onBackClick = {
                     navController.popBackStack()
-                }, onAddClick = {
-                    navController.navigate(Dest.AddEditItemScreen)
+                }, onAddClick = {listId, listTitle ->
+                    navController.navigate(Dest.AddEditItemScreen(listId, listTitle))
                 })
             }
             composable<Dest.AddEditListScreen> {
-                val args = it.toRoute<Dest.ListDetailScreen>()
+                val args = it.toRoute<Dest.AddEditListScreen>()
                 AddEditListScreen(
                     listId = args.listId,
                     onBackClick = {
@@ -76,7 +79,10 @@ fun AppContent() {
                     })
             }
             composable<Dest.AddEditItemScreen> {
+                val args = it.toRoute<Dest.AddEditItemScreen>()
                 AddEditItemScreen(
+                    listId = args.listId,
+                    listTitle = args.listTitle,
                     onBackClick = {
                         navController.popBackStack()
                     })

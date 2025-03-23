@@ -25,6 +25,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -35,8 +36,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,45 +46,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import uk.ac.tees.mad.shoplist.domain.ShoppingItem
-import uk.ac.tees.mad.shoplist.domain.ShoppingList
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.androidx.compose.koinViewModel
+import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
+import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
+import uk.ac.tees.mad.shoplist.ui.utils.LoadingState
 import uk.ac.tees.mad.shoplist.ui.utils.getCategoryColor
+import uk.ac.tees.mad.shoplist.ui.viewmodels.ListDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListDetailScreen(
-    listId: Int, onBackClick: () -> Unit, onAddClick: () -> Unit
+    listId: Int,
+    listTitle: String,
+    onBackClick: () -> Unit,
+    onAddClick: (Int, String) -> Unit,
+    listDetailViewModel: ListDetailViewModel = koinViewModel<ListDetailViewModel>()
 ) {
 
-    val shoppingList = remember {
-        when (listId) {
-            1 -> ShoppingList(1, "Weekly Groceries", 8, 2, "Mar 22, 2025", "Food")
-            2 -> ShoppingList(2, "Hardware Supplies", 5, 0, "Mar 21, 2025", "Home")
-            3 -> ShoppingList(3, "Gift Shopping", 3, 1, "Mar 20, 2025", "Personal")
-            else -> ShoppingList(0, "Unknown List", 0, 0, "Mar 22, 2025", "Other")
-        }
-    }
+    val shoppingList by listDetailViewModel.shoppingList.collectAsStateWithLifecycle()
+    val shoppingItems by listDetailViewModel.shoppingItems.collectAsStateWithLifecycle()
 
-    val items = remember {
-        mutableStateOf(
-            when (listId) {
-                1 -> listOf(
-                    ShoppingItem(1, "Milk", 2, true),
-                    ShoppingItem(2, "Bread", 1, false),
-                    ShoppingItem(3, "Eggs", 12, false)
-                )
-
-                2 -> listOf(
-                    ShoppingItem(1, "Nails", 50, false), ShoppingItem(2, "Hammer", 1, false)
-                )
-
-                3 -> listOf(
-                    ShoppingItem(1, "Book", 1, true), ShoppingItem(2, "Gift Card", 1, false)
-                )
-
-                else -> emptyList()
-            }
-        )
+    LaunchedEffect(Unit) {
+        listDetailViewModel.getShoppingListById(listId)
+        listDetailViewModel.getShoppingItemsByListId(listId)
     }
 
     Scaffold(
@@ -91,7 +77,7 @@ fun ListDetailScreen(
         TopAppBar(
             title = {
             Text(
-                shoppingList.title, fontWeight = FontWeight.Bold
+                listTitle, fontWeight = FontWeight.Bold
             )
         }, navigationIcon = {
             IconButton(onClick = onBackClick) {
@@ -110,7 +96,7 @@ fun ListDetailScreen(
         FloatingActionButton(
             onClick = {
                 /* TODO: Navigate to Add Item Screen*/
-                onAddClick()
+                onAddClick(listId, listTitle)
             },
             containerColor = MaterialTheme.colorScheme.secondary,
             shape = CircleShape,
@@ -129,7 +115,7 @@ fun ListDetailScreen(
     ) { paddingValues ->
         ListDetailContent(
             shoppingList = shoppingList,
-            items = items.value,
+            shoppingItems = shoppingItems,
             modifier = Modifier.padding(paddingValues)
         )
     }
@@ -137,44 +123,88 @@ fun ListDetailScreen(
 
 @Composable
 fun ListDetailContent(
-    shoppingList: ShoppingList, items: List<ShoppingItem>, modifier: Modifier = Modifier
+    shoppingList: LoadingState<ShoppingListEntity>,
+    shoppingItems: LoadingState<List<ShoppingItemEntity>>,
+    modifier: Modifier = Modifier
 ) {
-    if (items.isEmpty()) {
-        Box(
-            modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "No Items Yet",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Tap + to add items",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
+    when (val listState = shoppingList) {
+        is LoadingState.Error -> {
+            Box(
+                modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Error loading list")
             }
         }
-    } else {
-        LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                ListHeader(shoppingList)
+
+        is LoadingState.Loading -> {
+            Box(
+                modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
-            items(items) { item ->
-                ShoppingItemRow(item)
+        }
+
+        is LoadingState.Success -> {
+            when (val itemState = shoppingItems) {
+                is LoadingState.Error -> {
+                    Box(
+                        modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Error loading items")
+                    }
+                }
+
+                is LoadingState.Loading -> {
+                    Box(
+                        modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is LoadingState.Success -> {
+                    val items = itemState.data
+                    val list = listState.data
+                    if (items.isEmpty()) {
+                        Box(
+                            modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "No Items Yet",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Tap + to add items",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            item {
+                                ListHeader(list)
+                            }
+                            items(items) { item ->
+                                ShoppingItemRow(item)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun ListHeader(shoppingList: ShoppingList) {
+fun ListHeader(shoppingList: ShoppingListEntity) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -220,7 +250,7 @@ fun ListHeader(shoppingList: ShoppingList) {
 }
 
 @Composable
-fun ShoppingItemRow(item: ShoppingItem) {
+fun ShoppingItemRow(item: ShoppingItemEntity) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),

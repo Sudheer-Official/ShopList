@@ -51,9 +51,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uk.ac.tees.mad.shoplist.R
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
+import uk.ac.tees.mad.shoplist.ui.utils.LoadingState
 import uk.ac.tees.mad.shoplist.ui.utils.getCategoryColor
 import uk.ac.tees.mad.shoplist.ui.viewmodels.AddEditListViewModel
-import uk.ac.tees.mad.shoplist.ui.viewmodels.LoadingState
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingListViewModel
 import java.text.SimpleDateFormat
 
@@ -133,7 +133,9 @@ fun AddEditListScreenContent(
         ) {
             when (val state = list) {
                 is LoadingState.Loading -> {
+                    Spacer(modifier = Modifier.height(12.dp))
                     CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
 
                 is LoadingState.Success -> {
