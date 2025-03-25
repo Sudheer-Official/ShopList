@@ -5,11 +5,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -114,250 +117,174 @@ fun AddEditListScreenContent(
     shoppingListViewModel: ShoppingListViewModel,
     onBackClick: () -> Unit,
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .shadow(4.dp, RoundedCornerShape(12.dp)),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            when (val state = list) {
-                is LoadingState.Loading -> {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
+    when (val state = list) {
+        is LoadingState.Loading -> {
+            Box(
+                modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
 
-                is LoadingState.Success -> {
-                    val categories = listOf("Food", "Home", "Personal", "Others")
-                    var title by remember { mutableStateOf(state.data.title) }
-                    var category by remember { mutableStateOf(if (state.data.category.isEmpty()) "Others" else state.data.category) }
-                    var expanded by remember { mutableStateOf(false) }
-                    Box(
+        is LoadingState.Error -> {
+            Box(
+                modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Error loading list")
+            }
+        }
+
+        is LoadingState.Success -> {
+            val categories = listOf("Food", "Home", "Personal", "Others")
+            var title by remember { mutableStateOf(state.data.title) }
+            var category by remember { mutableStateOf(if (state.data.category.isEmpty()) "Others" else state.data.category) }
+            var expanded by remember { mutableStateOf(false) }
+            LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    Card(
                         modifier = Modifier
-                            .size(80.dp)
-                            .clip(CircleShape)
-                            .background(getCategoryColor(category))
+                            .fillMaxWidth()
+                            .shadow(4.dp, RoundedCornerShape(12.dp)),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     ) {
-                        if (title.isEmpty() || title.isBlank()) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_shoplist_logo),
-                                contentDescription = "ShopList Logo",
-                                modifier = Modifier
-                                    .size(60.dp)
-                                    .align(Alignment.Center)
-                            )
-                        } else {
-                            Text(
-                                text = title.first().toString(),
-                                modifier = Modifier.align(Alignment.Center),
-                                color = Color.White,
-                                fontSize = 36.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedTextField(
-                        value = title,
-                        onValueChange = { title = it },
-                        label = { Text("List Title") },
-                        singleLine = true,
-                        maxLines = 1,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    ExposedDropdownMenuBox(
-                        expanded = expanded,
-                        onExpandedChange = { expanded = it },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        OutlinedTextField(
-                            value = category,
-                            onValueChange = { },
-                            label = { Text("Category") },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(
-                                    expanded = expanded
-                                )
-                            },
-                            readOnly = true,
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor(
-                                    MenuAnchorType.PrimaryNotEditable
-                                )
-                        )
-                        ExposedDropdownMenu(
-                            expanded = expanded, onDismissRequest = {
-                                expanded = false
-                            }, modifier = Modifier.fillMaxWidth()
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            categories.forEach { cat ->
-                                DropdownMenuItem(
-                                    text = { Text(text = cat) },
-                                    onClick = {
-                                        category = cat
-                                        expanded = false
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                                    .background(getCategoryColor(category))
+                            ) {
+                                if (title.isEmpty() || title.isBlank()) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_shoplist_logo),
+                                        contentDescription = "ShopList Logo",
+                                        modifier = Modifier
+                                            .size(60.dp)
+                                            .align(Alignment.Center)
+                                    )
+                                } else {
+                                    Text(
+                                        text = title.first().toString(),
+                                        modifier = Modifier.align(Alignment.Center),
+                                        color = Color.White,
+                                        fontSize = 36.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            OutlinedTextField(
+                                value = title,
+                                onValueChange = { title = it },
+                                label = { Text("List Title") },
+                                singleLine = true,
+                                maxLines = 1,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            ExposedDropdownMenuBox(
+                                expanded = expanded,
+                                onExpandedChange = { expanded = it },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                OutlinedTextField(
+                                    value = category,
+                                    onValueChange = { },
+                                    label = { Text("Category") },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                            expanded = expanded
+                                        )
                                     },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                                    modifier = Modifier.fillMaxWidth()
+                                    readOnly = true,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .menuAnchor(
+                                            MenuAnchorType.PrimaryNotEditable
+                                        )
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = expanded, onDismissRequest = {
+                                        expanded = false
+                                    }, modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    categories.forEach { cat ->
+                                        DropdownMenuItem(
+                                            text = { Text(text = cat) },
+                                            onClick = {
+                                                category = cat
+                                                expanded = false
+                                            },
+                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Button(
+                                onClick = {
+                                    if (listId == 0) {
+                                        val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
+                                        val currentDateAndTime =
+                                            sdf.format(System.currentTimeMillis())
+                                        val shoppingList = ShoppingListEntity(
+                                            title = title!!,
+                                            itemCount = 0,
+                                            completedItems = 0,
+                                            lastModified = currentDateAndTime,
+                                            category = category
+                                        )
+                                        shoppingListViewModel.insertShoppingList(shoppingList)
+                                        onBackClick()
+                                    } else {
+                                        val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
+                                        val currentDateAndTime =
+                                            sdf.format(System.currentTimeMillis())
+                                        val shoppingList = ShoppingListEntity(
+                                            id = listId,
+                                            title = title!!,
+                                            itemCount = 0,
+                                            completedItems = 0,
+                                            lastModified = currentDateAndTime,
+                                            category = category
+                                        )
+                                        shoppingListViewModel.updateShoppingList(shoppingList)
+                                        onBackClick()
+                                    }
+                                },
+                                enabled = !(title.isEmpty() || title.isBlank()),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = if (listId == 0) stringResource(R.string.create_list) else stringResource(
+                                        R.string.update_list
+                                    )
                                 )
                             }
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Button(
-                        onClick = {
-                            if (listId == 0) {
-                                val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
-                                val currentDateAndTime = sdf.format(System.currentTimeMillis())
-                                val shoppingList = ShoppingListEntity(
-                                    title = title!!,
-                                    itemCount = 0,
-                                    completedItems = 0,
-                                    lastModified = currentDateAndTime,
-                                    category = category
-                                )
-                                shoppingListViewModel.insertShoppingList(shoppingList)
-                                onBackClick()
-                            } else {
-                                val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
-                                val currentDateAndTime = sdf.format(System.currentTimeMillis())
-                                val shoppingList = ShoppingListEntity(
-                                    id = listId,
-                                    title = title!!,
-                                    itemCount = 0,
-                                    completedItems = 0,
-                                    lastModified = currentDateAndTime,
-                                    category = category
-                                )
-                                shoppingListViewModel.updateShoppingList(shoppingList)
-                                onBackClick()
-                            }
-                        },
-                        enabled = !(title.isEmpty() || title.isBlank()),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = if (listId == 0) stringResource(R.string.create_list) else stringResource(
-                                R.string.update_list
-                            )
-                        )
-                    }
-
-                }
-
-                is LoadingState.Error -> {
-                    Text(text = "Error loading list")
                 }
             }
-
         }
     }
 }
-
-//    var title by remember { mutableStateOf("") }
-//    var category by remember { mutableStateOf("Home") }
-//    var isDropdownExpanded by remember { mutableStateOf(false) }
-//    val categories = listOf("Home", "Personal", "Food")
-//    val shoppingList by shoppingListViewModel.shoppingList.collectAsStateWithLifecycle()
-//    // Load data if editing
-//    if(listId != 0) {
-//        //TODO: Load the list information from the DB and assign it to title and category
-//        shoppingListViewModel.getShoppingListById(listId)
-//        title = shoppingList?.title ?: ""
-//        category = shoppingList?.category ?: "Home"
-//    }
-//
-//    Column(
-//        modifier = modifier
-//            .fillMaxSize()
-//            .padding(16.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        OutlinedTextField(
-//            value = title,
-//            onValueChange = { title = it },
-//            label = { Text("List Title") },
-//            modifier = Modifier.fillMaxWidth(),
-//            keyboardOptions = KeyboardOptions.Default.copy(
-//                capitalization = KeyboardCapitalization.Words,
-//                imeAction = ImeAction.Next
-//            )
-//        )
-//        Box(modifier = Modifier
-//            .fillMaxWidth()
-//        ) {
-//            OutlinedTextField(
-//                value = category,
-//                onValueChange = { },
-//                label = { Text("Category") },
-//                readOnly = true,
-//                modifier = Modifier.fillMaxWidth(),
-//                trailingIcon = {
-//                    IconButton(onClick = { isDropdownExpanded = !isDropdownExpanded }) {
-//                        Icon(
-//                            imageVector = androidx.compose.material.icons.Icons.Filled.ArrowDropDown,
-//                            contentDescription = "Category Dropdown"
-//                        )
-//                    }
-//                }
-//            )
-//            DropdownMenu(
-//                expanded = isDropdownExpanded,
-//                onDismissRequest = { isDropdownExpanded = false },
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                categories.forEach { cat ->
-//                    DropdownMenuItem(text = { Text(text = cat) }, onClick = {
-//                        category = cat
-//                        isDropdownExpanded = false
-//                    })
-//                }
-//            }
-//        }
-//
-//        Button(
-//            onClick = {
-//                val shoppingList = if (listId == 0) {
-//                    val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
-//                    val currentDateAndTime = sdf.format(System.currentTimeMillis())
-//                    ShoppingListEntity(title = title, itemCount = 0, completedItems = 0, lastModified = currentDateAndTime, category = category)
-//                } else {
-//                    //TODO: Get the id from the DB
-//                    val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
-//                    val currentDateAndTime = sdf.format(System.currentTimeMillis())
-//                    ShoppingListEntity(id = listId, title = title, itemCount = 0, completedItems = 0, lastModified = currentDateAndTime, category = category)
-//                }
-//                if (listId == 0) {
-//                    shoppingListViewModel.insertShoppingList(shoppingList)
-//                } else {
-//                    shoppingListViewModel.updateShoppingList(shoppingList)
-//                }
-//                onBackClick() // Go back after saving
-//            },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(top = 16.dp)
-//        ) {
-//            Text(text = "Save")
-//        }
-//    }
-//}

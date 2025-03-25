@@ -50,9 +50,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
+import uk.ac.tees.mad.shoplist.ui.utils.ListHeader
 import uk.ac.tees.mad.shoplist.ui.utils.LoadingState
 import uk.ac.tees.mad.shoplist.ui.utils.getCategoryColor
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ListDetailViewModel
+import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingItemViewModel
+import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +64,8 @@ fun ListDetailScreen(
     listTitle: String,
     onBackClick: () -> Unit,
     onAddClick: (Int, String) -> Unit,
+    shoppingListViewModel: ShoppingListViewModel = koinViewModel<ShoppingListViewModel>(),
+    shoppingItemViewModel: ShoppingItemViewModel = koinViewModel<ShoppingItemViewModel>(),
     listDetailViewModel: ListDetailViewModel = koinViewModel<ListDetailViewModel>()
 ) {
 
@@ -203,51 +208,7 @@ fun ListDetailContent(
     }
 }
 
-@Composable
-fun ListHeader(shoppingList: ShoppingListEntity) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 4.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(getCategoryColor(shoppingList.category))
-                ) {
-                    Text(
-                        text = shoppingList.title.first().toString(),
-                        modifier = Modifier.align(Alignment.Center),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "${shoppingList.itemCount} items • ${shoppingList.completedItems} completed",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Text(
-                text = "Last modified: ${shoppingList.lastModified}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
-    }
-}
+
 
 @Composable
 fun ShoppingItemRow(item: ShoppingItemEntity) {

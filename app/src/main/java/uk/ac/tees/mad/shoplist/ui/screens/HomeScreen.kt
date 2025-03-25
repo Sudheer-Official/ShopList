@@ -57,6 +57,7 @@ import uk.ac.tees.mad.shoplist.domain.ShoppingList
 import uk.ac.tees.mad.shoplist.ui.utils.DeleteDialog
 import uk.ac.tees.mad.shoplist.ui.utils.ShoppingListActionsSheet
 import uk.ac.tees.mad.shoplist.ui.utils.getCategoryColor
+import uk.ac.tees.mad.shoplist.ui.viewmodels.HomeViewModel
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,17 +66,18 @@ fun HomeScreen(
     onListClick: (Int, String) -> Unit,
     onAddListClick: () -> Unit,
     onEditListClick: (Int) -> Unit,
-    shoppingListViewModel: ShoppingListViewModel = koinViewModel<ShoppingListViewModel>()
+    shoppingListViewModel: ShoppingListViewModel = koinViewModel<ShoppingListViewModel>(),
+    homeViewModel: HomeViewModel = koinViewModel<HomeViewModel>()
 ) {
     listOf(
         ShoppingList(1, "Weekly Groceries", 8, 2, "Mar 22, 2025", "Food"),
         ShoppingList(2, "Hardware Supplies", 5, 0, "Mar 21, 2025", "Home"),
         ShoppingList(3, "Gift Shopping", 3, 1, "Mar 20, 2025", "Personal")
     )
-    val allShoppingLists by shoppingListViewModel.allShoppingLists.collectAsStateWithLifecycle()
+    val allShoppingLists by homeViewModel.allShoppingLists.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        shoppingListViewModel.getAllShoppingLists()
+        homeViewModel.getAllShoppingLists()
     }
 
     Scaffold(
