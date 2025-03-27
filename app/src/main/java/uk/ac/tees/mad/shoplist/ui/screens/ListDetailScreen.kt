@@ -1,27 +1,24 @@
 package uk.ac.tees.mad.shoplist.ui.screens
 
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -30,7 +27,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -40,22 +39,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.ui.utils.ListHeader
 import uk.ac.tees.mad.shoplist.ui.utils.LoadingState
-import uk.ac.tees.mad.shoplist.ui.utils.getCategoryColor
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ListDetailViewModel
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingItemViewModel
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingListViewModel
+import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,7 +117,9 @@ fun ListDetailScreen(
         ListDetailContent(
             shoppingList = shoppingList,
             shoppingItems = shoppingItems,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
+            shoppingListViewModel = shoppingListViewModel,
+            shoppingItemViewModel = shoppingItemViewModel
         )
     }
 }
@@ -130,7 +128,9 @@ fun ListDetailScreen(
 fun ListDetailContent(
     shoppingList: LoadingState<ShoppingListEntity>,
     shoppingItems: LoadingState<List<ShoppingItemEntity>>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    shoppingListViewModel: ShoppingListViewModel,
+    shoppingItemViewModel: ShoppingItemViewModel
 ) {
     when (val listState = shoppingList) {
         is LoadingState.Error -> {
@@ -198,7 +198,20 @@ fun ListDetailContent(
                                 ListHeader(list)
                             }
                             items(items) { item ->
-                                ShoppingItemRow(item)
+                                ShoppingItemRow(
+                                    item, onCheckedChange = { shoppingItem, isChecked ->
+                                        val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
+                                        val currentDateAndTime =
+                                            sdf.format(System.currentTimeMillis())
+                                        shoppingListViewModel.updateShoppingList(
+                                            list.copy(
+                                                lastModified = currentDateAndTime
+                                            )
+                                        )
+                                        shoppingItemViewModel.updateShoppingItem(
+                                            shoppingItem.copy(isPurchased = isChecked)
+                                        )
+                                    })
                             }
                         }
                     }
@@ -209,44 +222,46 @@ fun ListDetailContent(
 }
 
 
-
 @Composable
-fun ShoppingItemRow(item: ShoppingItemEntity) {
-    Card(
+fun ShoppingItemRow(
+    item: ShoppingItemEntity, onCheckedChange: (ShoppingItemEntity, Boolean) -> Unit = { _, _ -> }
+) {
+    OutlinedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
+        ListItem(leadingContent = {
+            Icon(
+                Icons.AutoMirrored.Filled.Label,
+                contentDescription = "Localized description",
+            )
+        }, headlineContent = {
+            Text(
+                text = item.name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (item.isPurchased) FontWeight.Normal else FontWeight.Medium,
+                color = if (item.isPurchased) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                else MaterialTheme.colorScheme.onSurface
+            )
+        }, supportingContent = {
+            if (item.quantity > 1) {
                 Text(
-                    text = item.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = if (item.isPurchased) FontWeight.Normal else FontWeight.Medium,
-                    color = if (item.isPurchased) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    else MaterialTheme.colorScheme.onSurface
+                    text = "Qty: ${item.quantity}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                if (item.quantity > 1) {
-                    Text(
-                        text = "Qty: ${item.quantity}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
             }
+        }, trailingContent = {
             Checkbox(
-                checked = item.isPurchased, onCheckedChange = { }, colors = CheckboxDefaults.colors(
+                checked = item.isPurchased, onCheckedChange = {
+                    onCheckedChange(item, it)
+                }, colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.secondary
                 )
             )
-        }
+        })
     }
 }
