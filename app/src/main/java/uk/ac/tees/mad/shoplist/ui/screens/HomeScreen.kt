@@ -54,7 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.domain.ShoppingList
-import uk.ac.tees.mad.shoplist.ui.utils.DeleteDialog
+import uk.ac.tees.mad.shoplist.ui.utils.DeleteDialogList
 import uk.ac.tees.mad.shoplist.ui.utils.ShoppingListActionsSheet
 import uk.ac.tees.mad.shoplist.ui.utils.getCategoryColor
 import uk.ac.tees.mad.shoplist.ui.viewmodels.HomeViewModel
@@ -146,7 +146,7 @@ fun ShoppingListContent(
 
 
     AnimatedVisibility(showDeleteDialog) {
-        DeleteDialog(
+        DeleteDialogList(
             onDismiss = {
             showDeleteDialog = false
         }, onConfirm = {

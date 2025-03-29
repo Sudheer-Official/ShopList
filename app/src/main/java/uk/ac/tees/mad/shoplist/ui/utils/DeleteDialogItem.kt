@@ -4,18 +4,18 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
+import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
 
 @Composable
-fun DeleteDialog(
-    onDismiss: () -> Unit, onConfirm: () -> Unit, shopingList: ShoppingListEntity
+fun DeleteDialogItem(
+    onDismiss: () -> Unit, onConfirm: () -> Unit, shopingItem: ShoppingItemEntity
 ) {
     AlertDialog(
         onDismissRequest = {
         onDismiss()
     },
         title = { Text(text = "Confirm Delete") },
-        text = { Text(text = "Are you sure you want to delete ${shopingList.title}?") },
+        text = { Text(text = "Are you sure you want to delete ${shopingItem.name}?") },
         confirmButton = {
             TextButton(onClick = { onConfirm() }) { Text("Confirm") }
         },

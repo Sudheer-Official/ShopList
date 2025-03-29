@@ -20,8 +20,8 @@ import androidx.room.PrimaryKey
 data class ShoppingItemEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val name: String,
-    val quantity: Int,
-    val isPurchased: Boolean,
+    val name: String = "",
+    val quantity: Int = 1,
+    val isPurchased: Boolean = false,
     val listId: Int // Foreign key referencing ShoppingListEntity.id
 )

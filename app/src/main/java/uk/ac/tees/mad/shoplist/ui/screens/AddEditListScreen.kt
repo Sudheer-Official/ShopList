@@ -56,6 +56,7 @@ import uk.ac.tees.mad.shoplist.R
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.ui.utils.LoadingState
 import uk.ac.tees.mad.shoplist.ui.utils.getCategoryColor
+import uk.ac.tees.mad.shoplist.ui.utils.getCurrentDateAndTime
 import uk.ac.tees.mad.shoplist.ui.viewmodels.AddEditListViewModel
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingListViewModel
 import java.text.SimpleDateFormat
@@ -135,9 +136,10 @@ fun AddEditListScreenContent(
         }
 
         is LoadingState.Success -> {
+            val list = state.data
             val categories = listOf("Food", "Home", "Personal", "Others")
-            var title by remember { mutableStateOf(state.data.title) }
-            var category by remember { mutableStateOf(if (state.data.category.isEmpty()) "Others" else state.data.category) }
+            var title by remember { mutableStateOf(list.title) }
+            var category by remember { mutableStateOf(if (list.category.isEmpty()) "Others" else list.category) }
             var expanded by remember { mutableStateOf(false) }
             LazyColumn(
                 modifier = modifier.fillMaxSize(),
@@ -194,7 +196,8 @@ fun AddEditListScreenContent(
                                 label = { Text("List Title") },
                                 singleLine = true,
                                 maxLines = 1,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
+                                isError = title.isEmpty() || title.isBlank()
                             )
 
                             Spacer(modifier = Modifier.height(12.dp))
@@ -244,31 +247,22 @@ fun AddEditListScreenContent(
                             Button(
                                 onClick = {
                                     if (listId == 0) {
-                                        val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
-                                        val currentDateAndTime =
-                                            sdf.format(System.currentTimeMillis())
-                                        val shoppingList = ShoppingListEntity(
-                                            title = title!!,
-                                            itemCount = 0,
-                                            completedItems = 0,
-                                            lastModified = currentDateAndTime,
-                                            category = category
+                                        shoppingListViewModel.insertShoppingList(
+                                            list.copy(
+                                                title = title,
+                                                category = category,
+                                                lastModified = getCurrentDateAndTime()
+                                            )
                                         )
-                                        shoppingListViewModel.insertShoppingList(shoppingList)
                                         onBackClick()
                                     } else {
-                                        val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
-                                        val currentDateAndTime =
-                                            sdf.format(System.currentTimeMillis())
-                                        val shoppingList = ShoppingListEntity(
-                                            id = listId,
-                                            title = title!!,
-                                            itemCount = 0,
-                                            completedItems = 0,
-                                            lastModified = currentDateAndTime,
-                                            category = category
+                                        shoppingListViewModel.updateShoppingList(
+                                            list.copy(
+                                                title = title,
+                                                category = category,
+                                                lastModified = getCurrentDateAndTime()
+                                            )
                                         )
-                                        shoppingListViewModel.updateShoppingList(shoppingList)
                                         onBackClick()
                                     }
                                 },

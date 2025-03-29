@@ -3,7 +3,6 @@ package uk.ac.tees.mad.shoplist.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,49 +12,50 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
+import uk.ac.tees.mad.shoplist.ui.utils.AddShoppingItemDialog
+import uk.ac.tees.mad.shoplist.ui.utils.DeleteDialogItem
+import uk.ac.tees.mad.shoplist.ui.utils.EditShoppingItemDialog
 import uk.ac.tees.mad.shoplist.ui.utils.ListHeader
 import uk.ac.tees.mad.shoplist.ui.utils.LoadingState
+import uk.ac.tees.mad.shoplist.ui.utils.getCurrentDateAndTime
 import uk.ac.tees.mad.shoplist.ui.viewmodels.AddEditItemViewModel
-import uk.ac.tees.mad.shoplist.ui.viewmodels.ListDetailViewModel
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingItemViewModel
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingListViewModel
-import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -155,140 +155,71 @@ fun AddEditItemContent(
                     val list = listState.data
 
                     var showAddItemDialog by remember { mutableStateOf(false) }
-                    var itemName by remember { mutableStateOf("") }
-                    var itemQuantity by remember { mutableStateOf("") }
+                    var showEditItemDialog by remember { mutableStateOf(false) }
+                    var selectedItem by remember { mutableStateOf<ShoppingItemEntity?>(null) }
+                    var showDeleteDialog by remember { mutableStateOf(false) }
 
                     AnimatedVisibility(showAddItemDialog) {
-                        var inputErrorI by remember { mutableStateOf(false) } // Flag for item name input error
-                        var inputErrorQ by remember { mutableStateOf(false) } // Flag for item quantity input error
-                        var inputErrorQNum by remember { mutableStateOf(false) } // Flag for item quantity input error
-                        AlertDialog(onDismissRequest = {
-                            showAddItemDialog = false
-                            itemName = ""
-                            itemQuantity = ""
-                        }, confirmButton = {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Button(onClick = {
-                                    if (itemName.isNotBlank() && itemQuantity.isNotBlank()) {
-                                        inputErrorQ = false
-                                        if (itemQuantity.toIntOrNull() == null) {
-                                            inputErrorQNum = true
-                                        } else {
-                                            inputErrorQNum = false
-
-                                            // perform add item
-                                            val shoppingItem = ShoppingItemEntity(
-                                                listId = list.id,
-                                                name = itemName,
-                                                quantity = itemQuantity.toInt(),
-                                                isPurchased = false
-                                            )
-                                            val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
-                                            val currentDateAndTime =
-                                                sdf.format(System.currentTimeMillis())
-                                            val shoppingList = ShoppingListEntity(
-                                                id = list.id,
-                                                title = list.title,
-                                                itemCount = list.itemCount + 1,
-                                                completedItems = list.completedItems,
-                                                lastModified = currentDateAndTime,
-                                                category = list.category)
-
-                                            shoppingItemViewModel.insertShoppingItem(shoppingItem)
-                                            shoppingListViewModel.updateShoppingList(shoppingList)
-
-                                            showAddItemDialog = false
-                                            itemName = ""
-                                            itemQuantity = ""
-                                        }
-                                    } else {
-                                        inputErrorI = itemName.isBlank()
-                                        inputErrorQ = itemQuantity.isBlank()
-                                    }
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Add",
-                                        tint = Color.Green
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(text = "Add")
-                                }
-                                Button(onClick = { showAddItemDialog = false }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Cancel",
-                                        tint = Color.Red
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(text = "Cancel")
-                                }
-                            }
-                        }, title = {
-                            Text(
-                                text = "Add Shopping Item",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .fillMaxWidth(),
-                                textAlign = TextAlign.Center,
-                                maxLines = 1,
-                                softWrap = false,
-                                overflow = TextOverflow.Ellipsis,
-                                minLines = 1
-                            )
-                        }, text = {
-                            Column {
-                                // Input field for item name
-                                OutlinedTextField(value = itemName,
-                                    onValueChange = { itemName = it },
-                                    label = { Text(text = "Item Name") },
-                                    isError = inputErrorI,
-                                    supportingText = {
-                                        if (inputErrorI) {
-                                            Text(text = "Item Name cannot be empty")
-                                        }
-                                    },
-                                    singleLine = true,
-                                    maxLines = 1,
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
+                        AddShoppingItemDialog(
+                            onDismiss = { showAddItemDialog = false },
+                            onConfirm = { name, quantity ->
+                                val shoppingItem = ShoppingItemEntity(
+                                    listId = list.id,
+                                    name = name,
+                                    quantity = quantity,
+                                    isPurchased = false
                                 )
-
-                                // Input field for item quantity
-                                OutlinedTextField(value = itemQuantity,
-                                    onValueChange = { itemQuantity = it },
-                                    label = { Text(text = "Item Quantity") },
-                                    isError = inputErrorQ || inputErrorQNum,
-                                    supportingText = {
-                                        if (inputErrorQ) {
-                                            Text(text = "Item Quantity cannot be empty")
-                                        } else if (inputErrorQNum) {
-                                            if (itemQuantity.isBlank()) {
-                                                Text(text = "Item Quantity cannot be empty")
-                                            } else if (itemQuantity.toIntOrNull() == null) {
-                                                Text(text = "Item Quantity must be a number")
-                                            } else {
-                                                inputErrorQNum = false
-                                            }
-                                        }
-                                    },
-                                    singleLine = true,
-                                    maxLines = 1,
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Number
-                                    ),
+                                shoppingItemViewModel.insertShoppingItem(shoppingItem)
+                                shoppingListViewModel.updateShoppingList(
+                                    list.copy(
+                                        itemCount = list.itemCount + 1,
+                                        lastModified = getCurrentDateAndTime()
+                                    )
                                 )
+                                showAddItemDialog = false
+                            })
+                    }
+
+                    AnimatedVisibility(showEditItemDialog) {
+                        EditShoppingItemDialog(
+                            onDismiss = {
+                            showEditItemDialog = false
+                        }, onConfirm = { name, quantity ->
+                            selectedItem?.let {
+                                shoppingItemViewModel.updateShoppingItem(
+                                    it.copy(
+                                        name = name, quantity = quantity
+                                    )
+                                )
+                                shoppingListViewModel.updateShoppingList(
+                                    list.copy(
+                                        lastModified = getCurrentDateAndTime()
+                                    )
+                                )
+                                showEditItemDialog = false
                             }
-                        })
+                        }, item = selectedItem!!
+                        )
+                    }
+
+                    AnimatedVisibility(showDeleteDialog) {
+                        DeleteDialogItem(
+                            onDismiss = {
+                            showDeleteDialog = false
+                        }, onConfirm = {
+                            selectedItem?.let {
+                                shoppingItemViewModel.deleteShoppingItem(it)
+                                shoppingListViewModel.updateShoppingList(
+                                    list.copy(
+                                        itemCount = list.itemCount - 1,
+                                        completedItems = if (it.isPurchased) list.completedItems - 1 else list.completedItems,
+                                        lastModified = getCurrentDateAndTime()
+                                    )
+                                )
+                                showDeleteDialog = false
+                            }
+                        }, shopingItem = selectedItem!!
+                        )
                     }
 
                     LazyColumn(
@@ -300,7 +231,7 @@ fun AddEditItemContent(
                         item {
                             ListHeader(list)
                         }
-                        item{
+                        item {
                             Button(
                                 onClick = { showAddItemDialog = true },
                             ) {
@@ -309,8 +240,8 @@ fun AddEditItemContent(
                                 Text(text = "Add Item")
                             }
                         }
-                        item{
-                            if(items.isEmpty()){
+                        item {
+                            if (items.isEmpty()) {
                                 Text(
                                     text = "No items to show",
                                     style = MaterialTheme.typography.bodyLarge,
@@ -318,13 +249,99 @@ fun AddEditItemContent(
                                 )
                             }
                         }
-                        items(items) { item ->
-                            Text("${item.name} - ${item.quantity}")
+                        items(items, key = { it.id }) { item ->
+                            //Text("${item.name} - ${item.quantity}")
+                            ItemListRow(item, onCheckedChange = { shoppingItem, isChecked ->
+                                shoppingListViewModel.updateShoppingList(
+                                    list.copy(
+                                        lastModified = getCurrentDateAndTime(),
+                                        completedItems = if (isChecked) list.completedItems + 1 else list.completedItems - 1
+                                    )
+                                )
+                                shoppingItemViewModel.updateShoppingItem(
+                                    shoppingItem.copy(isPurchased = isChecked)
+                                )
+                            }, onEditClick = { item ->
+                                selectedItem = item
+                                showEditItemDialog = true
+                            }, onDeleteClick = { item ->
+                                selectedItem = item
+                                showDeleteDialog = true
+                            })
                         }
                     }
                 }
             }
         }
     }
+}
 
+@Composable
+fun ItemListRow(
+    item: ShoppingItemEntity,
+    onCheckedChange: (ShoppingItemEntity, Boolean) -> Unit = { _, _ -> },
+    onEditClick: (ShoppingItemEntity) -> Unit = { _ -> },
+    onDeleteClick: (ShoppingItemEntity) -> Unit = { _ -> }
+) {
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        ListItem(leadingContent = {
+            Checkbox(
+                checked = item.isPurchased, onCheckedChange = {
+                    onCheckedChange(item, it)
+                }, colors = CheckboxDefaults.colors(
+                    checkedColor = MaterialTheme.colorScheme.secondary
+                )
+            )
+//            Icon(
+//                if(item.isPurchased) Icons.AutoMirrored.Filled.LabelOff else Icons.AutoMirrored.Filled.Label,
+//                contentDescription = "Localized description",
+//            )
+        }, headlineContent = {
+            Text(
+                text = item.name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (item.isPurchased) FontWeight.Normal else FontWeight.Medium,
+                color = if (item.isPurchased) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                else MaterialTheme.colorScheme.onSurface
+            )
+        }, supportingContent = {
+            if (item.quantity > 1) {
+                Text(
+                    text = "Qty: ${item.quantity}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }, trailingContent = {
+            Row {
+                IconButton(
+                    onClick = {
+                        onEditClick(item)
+                    }) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit",
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                IconButton(
+                    onClick = {
+                        onDeleteClick(item)
+                    }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
+        })
+    }
 }

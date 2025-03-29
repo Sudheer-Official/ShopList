@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.data.repository.ShoppingListRepository
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ShoppingListViewModel(
     private val shoppingListRepository: ShoppingListRepository
@@ -49,6 +51,15 @@ class ShoppingListViewModel(
     fun deleteShoppingList(shoppingList: ShoppingListEntity) {
         viewModelScope.launch {
             shoppingListRepository.deleteShoppingList(shoppingList)
+        }
+    }
+
+    // Function to update last modified date of a shopping list
+    fun updateLastModified(shoppingListId: Int) {
+        viewModelScope.launch {
+            val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a",Locale.getDefault())
+            val currentDateAndTime = sdf.format(System.currentTimeMillis())
+            shoppingListRepository.updateLastModified(shoppingListId, lastModified = currentDateAndTime)
         }
     }
 

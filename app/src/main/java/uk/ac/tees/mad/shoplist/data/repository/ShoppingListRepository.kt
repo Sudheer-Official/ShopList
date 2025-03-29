@@ -9,4 +9,5 @@ interface ShoppingListRepository {
     suspend fun deleteShoppingList(shoppingList: ShoppingListEntity)
     fun getAllShoppingLists(): Flow<List<ShoppingListEntity>>
     fun getShoppingListById(id: Int): Flow<ShoppingListEntity>
+    suspend fun updateLastModified(id: Int, lastModified: String)
 }

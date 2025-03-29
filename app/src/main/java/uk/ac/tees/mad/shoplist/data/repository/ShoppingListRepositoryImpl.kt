@@ -26,4 +26,8 @@ class ShoppingListRepositoryImpl(private val shoppingListDao: ShoppingListDao) :
     override fun getShoppingListById(id: Int): Flow<ShoppingListEntity> {
         return shoppingListDao.getShoppingListById(id)
     }
+
+    override suspend fun updateLastModified(id: Int, lastModified: String) {
+        shoppingListDao.updateLastModified(id, lastModified)
+    }
 }

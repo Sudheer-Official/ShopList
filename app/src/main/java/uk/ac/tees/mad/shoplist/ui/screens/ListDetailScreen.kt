@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Label
+import androidx.compose.material.icons.automirrored.filled.LabelOff
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -48,10 +49,10 @@ import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.ui.utils.ListHeader
 import uk.ac.tees.mad.shoplist.ui.utils.LoadingState
+import uk.ac.tees.mad.shoplist.ui.utils.getCurrentDateAndTime
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ListDetailViewModel
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingItemViewModel
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingListViewModel
-import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -197,15 +198,13 @@ fun ListDetailContent(
                             item {
                                 ListHeader(list)
                             }
-                            items(items) { item ->
+                            items(items, key = { it.id }) { item ->
                                 ShoppingItemRow(
                                     item, onCheckedChange = { shoppingItem, isChecked ->
-                                        val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a")
-                                        val currentDateAndTime =
-                                            sdf.format(System.currentTimeMillis())
                                         shoppingListViewModel.updateShoppingList(
                                             list.copy(
-                                                lastModified = currentDateAndTime
+                                                lastModified = getCurrentDateAndTime(),
+                                                completedItems = if (isChecked) list.completedItems + 1 else list.completedItems - 1
                                             )
                                         )
                                         shoppingItemViewModel.updateShoppingItem(
@@ -235,7 +234,7 @@ fun ShoppingItemRow(
     ) {
         ListItem(leadingContent = {
             Icon(
-                Icons.AutoMirrored.Filled.Label,
+                if (item.isPurchased) Icons.AutoMirrored.Filled.LabelOff else Icons.AutoMirrored.Filled.Label,
                 contentDescription = "Localized description",
             )
         }, headlineContent = {
