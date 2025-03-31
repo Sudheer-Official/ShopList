@@ -2,11 +2,13 @@ package uk.ac.tees.mad.shoplist.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.data.repository.ShoppingListRepository
 import java.text.SimpleDateFormat
@@ -27,8 +29,10 @@ class ShoppingListViewModel(
     // Function to retrieve all shopping lists
     fun getAllShoppingLists() {
         viewModelScope.launch {
+            withContext(Dispatchers.IO) {
             shoppingListRepository.getAllShoppingLists().collectLatest { shoppingLists ->
                 _allShoppingLists.value = shoppingLists
+            }
             }
         }
     }
@@ -36,30 +40,41 @@ class ShoppingListViewModel(
     // Function to insert a new shopping list
     fun insertShoppingList(shoppingList: ShoppingListEntity) {
         viewModelScope.launch {
-            shoppingListRepository.insertShoppingList(shoppingList)
+            withContext(Dispatchers.IO) {
+                shoppingListRepository.insertShoppingList(shoppingList)
+            }
         }
     }
 
     // Function to update an existing shopping list
     fun updateShoppingList(shoppingList: ShoppingListEntity) {
         viewModelScope.launch {
+            withContext(Dispatchers.IO) {
             shoppingListRepository.updateShoppingList(shoppingList)
+            }
         }
     }
 
     // Function to delete a shopping list
     fun deleteShoppingList(shoppingList: ShoppingListEntity) {
         viewModelScope.launch {
-            shoppingListRepository.deleteShoppingList(shoppingList)
+            withContext(Dispatchers.IO) {
+                shoppingListRepository.deleteShoppingList(shoppingList)
+            }
         }
     }
 
     // Function to update last modified date of a shopping list
     fun updateLastModified(shoppingListId: Int) {
         viewModelScope.launch {
-            val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a",Locale.getDefault())
-            val currentDateAndTime = sdf.format(System.currentTimeMillis())
-            shoppingListRepository.updateLastModified(shoppingListId, lastModified = currentDateAndTime)
+            withContext(Dispatchers.IO) {
+                val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a", Locale.getDefault())
+                val currentDateAndTime = sdf.format(System.currentTimeMillis())
+                shoppingListRepository.updateLastModified(
+                    shoppingListId,
+                    lastModified = currentDateAndTime
+                )
+            }
         }
     }
 

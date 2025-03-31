@@ -26,4 +26,8 @@ class ShoppingItemRepositoryImpl(private val shoppingItemDao: ShoppingItemDao) :
     override fun getAllShoppingItems(): Flow<List<ShoppingItemEntity>>{
         return shoppingItemDao.getAllShoppingItems()
     }
+
+    override suspend fun deleteAllPurchasedItemsForList(listId: Int) {
+        shoppingItemDao.deleteAllPurchasedItemsForList(listId)
+    }
 }

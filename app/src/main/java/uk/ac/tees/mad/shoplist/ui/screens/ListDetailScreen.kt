@@ -38,10 +38,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
@@ -49,6 +53,7 @@ import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.ui.utils.ListHeader
 import uk.ac.tees.mad.shoplist.ui.utils.LoadingState
+import uk.ac.tees.mad.shoplist.ui.utils.RememberShakeSensor
 import uk.ac.tees.mad.shoplist.ui.utils.getCurrentDateAndTime
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ListDetailViewModel
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingItemViewModel
@@ -171,6 +176,7 @@ fun ListDetailContent(
                 is LoadingState.Success -> {
                     val items = itemState.data
                     val list = listState.data
+                    var checkedItems by remember { mutableIntStateOf(listState.data.completedItems) }
                     if (items.isEmpty()) {
                         Box(
                             modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -190,6 +196,18 @@ fun ListDetailContent(
                             }
                         }
                     } else {
+
+                        RememberShakeSensor {
+                            shoppingItemViewModel.deleteAllPurchasedItemsForList(list.id)
+                            shoppingListViewModel.updateShoppingList(
+                                list.copy(
+                                    lastModified = getCurrentDateAndTime(),
+                                    itemCount = list.itemCount - checkedItems,
+                                    completedItems = 0
+                                )
+                            )
+                        }
+
                         LazyColumn(
                             modifier = modifier.fillMaxSize(),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
@@ -198,9 +216,20 @@ fun ListDetailContent(
                             item {
                                 ListHeader(list)
                             }
+                            item {
+                                Text(
+                                    text = "Tip: Shake to delete all purchased items",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                             items(items, key = { it.id }) { item ->
                                 ShoppingItemRow(
                                     item, onCheckedChange = { shoppingItem, isChecked ->
+                                        checkedItems =
+                                            if (isChecked) checkedItems + 1 else checkedItems - 1
                                         shoppingListViewModel.updateShoppingList(
                                             list.copy(
                                                 lastModified = getCurrentDateAndTime(),

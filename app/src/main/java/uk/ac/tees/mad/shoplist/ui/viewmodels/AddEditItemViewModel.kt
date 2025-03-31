@@ -2,11 +2,13 @@ package uk.ac.tees.mad.shoplist.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.data.repository.ShoppingItemRepository
@@ -29,19 +31,21 @@ class AddEditItemViewModel(
 
     fun getShoppingListById(id: Int = 0) {
         viewModelScope.launch {
-            if (id == 0) {
-                _shoppingList.value = LoadingState.Success(
-                    ShoppingListEntity(
-                        title = "",
-                        itemCount = 0,
-                        completedItems = 0,
-                        lastModified = "",
-                        category = ""
+            withContext(Dispatchers.IO) {
+                if (id == 0) {
+                    _shoppingList.value = LoadingState.Success(
+                        ShoppingListEntity(
+                            title = "",
+                            itemCount = 0,
+                            completedItems = 0,
+                            lastModified = "",
+                            category = ""
+                        )
                     )
-                )
-            } else {
-                shoppingListRepository.getShoppingListById(id).collectLatest { shoppingList ->
-                    _shoppingList.value = LoadingState.Success(shoppingList)
+                } else {
+                    shoppingListRepository.getShoppingListById(id).collectLatest { shoppingList ->
+                        _shoppingList.value = LoadingState.Success(shoppingList)
+                    }
                 }
             }
         }
@@ -49,8 +53,10 @@ class AddEditItemViewModel(
 
     fun getShoppingItemsByListId(listId: Int) {
         viewModelScope.launch {
+            withContext(Dispatchers.IO) {
             shoppingItemRepository.getShoppingItemsByListId(listId).collectLatest { shoppingItems ->
                 _shoppingItems.value = LoadingState.Success(shoppingItems)
+            }
             }
         }
     }

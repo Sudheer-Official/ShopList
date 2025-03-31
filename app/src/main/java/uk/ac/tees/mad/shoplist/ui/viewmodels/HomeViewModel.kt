@@ -2,11 +2,13 @@ package uk.ac.tees.mad.shoplist.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.data.repository.ShoppingListRepository
 
@@ -24,8 +26,10 @@ class HomeViewModel(
     // Function to retrieve all shopping lists
     fun getAllShoppingLists() {
         viewModelScope.launch {
-            shoppingListRepository.getAllShoppingLists().collectLatest { shoppingLists ->
-                _allShoppingLists.value = shoppingLists
+            withContext(Dispatchers.IO) {
+                shoppingListRepository.getAllShoppingLists().collectLatest { shoppingLists ->
+                    _allShoppingLists.value = shoppingLists
+                }
             }
         }
     }

@@ -25,4 +25,7 @@ interface ShoppingItemDao {
 
     @Query("SELECT * FROM shopping_items")
     fun getAllShoppingItems(): Flow<List<ShoppingItemEntity>>
+
+    @Query("DELETE FROM shopping_items WHERE isPurchased = 1 AND listId = :listId")
+    fun deleteAllPurchasedItemsForList(listId: Int)
 }
