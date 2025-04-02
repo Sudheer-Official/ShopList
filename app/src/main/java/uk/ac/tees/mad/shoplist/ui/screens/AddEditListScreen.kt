@@ -226,7 +226,7 @@ fun AddEditListScreenContent(
                                 ExposedDropdownMenu(
                                     expanded = expanded, onDismissRequest = {
                                         expanded = false
-                                    }, modifier = Modifier.fillMaxWidth()
+                                    }
                                 ) {
                                     categories.forEach { cat ->
                                         DropdownMenuItem(
@@ -234,9 +234,7 @@ fun AddEditListScreenContent(
                                             onClick = {
                                                 category = cat
                                                 expanded = false
-                                            },
-                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                                            modifier = Modifier.fillMaxWidth()
+                                            }
                                         )
                                     }
                                 }

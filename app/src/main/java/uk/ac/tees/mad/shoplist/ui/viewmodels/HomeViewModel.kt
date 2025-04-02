@@ -33,4 +33,15 @@ class HomeViewModel(
             }
         }
     }
+
+    // Function to retrieve shopping lists by category
+    fun getShoppingListsByCategory(category: String){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                shoppingListRepository.getShoppingListsByCategory(category).collectLatest { shoppingLists ->
+                    _allShoppingLists.value = shoppingLists
+                }
+            }
+        }
+    }
 }

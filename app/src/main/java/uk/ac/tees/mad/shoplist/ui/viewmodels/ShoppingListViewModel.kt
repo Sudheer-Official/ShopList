@@ -37,6 +37,17 @@ class ShoppingListViewModel(
         }
     }
 
+    // Function to retrieve shopping lists by category
+    fun getShoppingListsByCategory(category: String){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                shoppingListRepository.getShoppingListsByCategory(category).collectLatest { shoppingLists ->
+                    _allShoppingLists.value = shoppingLists
+                }
+            }
+        }
+    }
+
     // Function to insert a new shopping list
     fun insertShoppingList(shoppingList: ShoppingListEntity) {
         viewModelScope.launch {

@@ -10,4 +10,5 @@ interface ShoppingListRepository {
     fun getAllShoppingLists(): Flow<List<ShoppingListEntity>>
     fun getShoppingListById(id: Int): Flow<ShoppingListEntity>
     suspend fun updateLastModified(id: Int, lastModified: String)
+    fun getShoppingListsByCategory(category: String): Flow<List<ShoppingListEntity>>
 }

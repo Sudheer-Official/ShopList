@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,10 +20,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -54,6 +57,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.domain.ShoppingList
+import uk.ac.tees.mad.shoplist.ui.utils.CustomFilterChip
 import uk.ac.tees.mad.shoplist.ui.utils.DeleteDialogList
 import uk.ac.tees.mad.shoplist.ui.utils.ShoppingListActionsSheet
 import uk.ac.tees.mad.shoplist.ui.utils.getCategoryColor
@@ -76,8 +80,19 @@ fun HomeScreen(
     )
     val allShoppingLists by homeViewModel.allShoppingLists.collectAsStateWithLifecycle()
 
+    val categories = listOf("All", "Food", "Home", "Personal", "Others")
+    var selectedCategory by remember { mutableStateOf("All") }
+
     LaunchedEffect(Unit) {
         homeViewModel.getAllShoppingLists()
+    }
+
+    LaunchedEffect(selectedCategory) {
+        if (selectedCategory == "All") {
+            homeViewModel.getAllShoppingLists()
+        } else {
+            homeViewModel.getShoppingListsByCategory(selectedCategory)
+        }
     }
 
     Scaffold(
@@ -123,19 +138,25 @@ fun HomeScreen(
             shoppingListViewModel = shoppingListViewModel,
             onListClick = onListClick,
             onEditListClick = onEditListClick,
-            modifier = Modifier.padding(paddingValues)
-        )
+            modifier = Modifier.padding(paddingValues),
+            categories = categories,
+            selectedCategory = selectedCategory,
+            onFilterClick = {
+                selectedCategory = it
+            })
     }
 }
 
 @Composable
 fun ShoppingListContent(
-    //shoppingLists: List<ShoppingList>,
     shoppingLists: List<ShoppingListEntity>,
     shoppingListViewModel: ShoppingListViewModel,
     onListClick: (Int, String) -> Unit,
     onEditListClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    categories: List<String> = emptyList(),
+    selectedCategory: String = "All",
+    onFilterClick: (String) -> Unit
 ) {
     val haptics = LocalHapticFeedback.current
 
@@ -156,7 +177,7 @@ fun ShoppingListContent(
         )
     }
 
-    if (shoppingLists.isEmpty()) {
+    if (shoppingLists.isEmpty() && categories.isNotEmpty() && selectedCategory == "All") {
         Box(
             modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
         ) {
@@ -180,13 +201,27 @@ fun ShoppingListContent(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-//            items(shoppingLists) { list ->
-//                ShoppingListItem(list = list, onClick = { onListClick(list.id) }, onLongClick = {
-//                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-//                    contextMenuListId = list.id
-//                    contextMenuListTitle = list.title
-//                })
-//            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (categories.isNotEmpty()) {
+                        categories.forEach {
+                            CustomFilterChip(
+                                icon = Icons.Default.Done,
+                                text = it,
+                                selected = it == selectedCategory,
+                                onClick = {
+                                    onFilterClick(it)
+                                })
+                        }
+                    }
+                }
+            }
             items(shoppingLists) {
                 ShoppingListItem(
                     list = it,
@@ -196,6 +231,33 @@ fun ShoppingListContent(
                         longClickedList = it
                         showListActionSheet = true
                     })
+            }
+            item {
+                if (shoppingLists.isEmpty()) {
+                    Box(
+                        modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "For $selectedCategory",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "No Shopping Lists Yet",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Tap + to create Shopping List",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
+                }
             }
         }
         if (showListActionSheet && longClickedList != null) {

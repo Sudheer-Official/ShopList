@@ -29,4 +29,7 @@ interface ShoppingListDao {
     @Query("UPDATE shopping_lists SET lastModified = :lastModified WHERE id = :id")
     suspend fun updateLastModified(id: Int, lastModified: String)
 
+    @Query("SELECT * FROM shopping_lists WHERE category = :category")
+    fun getShoppingListsByCategory(category: String): Flow<List<ShoppingListEntity>>
+
 }
