@@ -15,8 +15,7 @@ import uk.ac.tees.mad.shoplist.data.repository.ShoppingListRepositoryImpl
 val databaseModule = module {
     fun provideDatabase(application: Application): ShopListDatabase {
         return Room.databaseBuilder(application, ShopListDatabase::class.java, "shoplist_database")
-            .fallbackToDestructiveMigration()
-            .build()
+            .fallbackToDestructiveMigration().build()
     }
 
     fun provideShoppingListDao(database: ShopListDatabase): ShoppingListDao {
@@ -27,7 +26,7 @@ val databaseModule = module {
         return database.shoppingItemDao()
     }
 
-    fun provideShoppingListRepository(shoppingListDao: ShoppingListDao): ShoppingListRepository{
+    fun provideShoppingListRepository(shoppingListDao: ShoppingListDao): ShoppingListRepository {
         return ShoppingListRepositoryImpl(shoppingListDao)
     }
 

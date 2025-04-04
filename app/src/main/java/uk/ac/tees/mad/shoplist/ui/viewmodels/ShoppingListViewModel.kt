@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.shoplist.ui.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
 import uk.ac.tees.mad.shoplist.data.repository.ShoppingListRepository
+import uk.ac.tees.mad.shoplist.ui.utils.showNotification
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -30,29 +32,31 @@ class ShoppingListViewModel(
     fun getAllShoppingLists() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-            shoppingListRepository.getAllShoppingLists().collectLatest { shoppingLists ->
-                _allShoppingLists.value = shoppingLists
-            }
-            }
-        }
-    }
-
-    // Function to retrieve shopping lists by category
-    fun getShoppingListsByCategory(category: String){
-        viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                shoppingListRepository.getShoppingListsByCategory(category).collectLatest { shoppingLists ->
+                shoppingListRepository.getAllShoppingLists().collectLatest { shoppingLists ->
                     _allShoppingLists.value = shoppingLists
                 }
             }
         }
     }
 
+    // Function to retrieve shopping lists by category
+    fun getShoppingListsByCategory(category: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                shoppingListRepository.getShoppingListsByCategory(category)
+                    .collectLatest { shoppingLists ->
+                        _allShoppingLists.value = shoppingLists
+                    }
+            }
+        }
+    }
+
     // Function to insert a new shopping list
-    fun insertShoppingList(shoppingList: ShoppingListEntity) {
+    fun insertShoppingList(shoppingList: ShoppingListEntity, context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 shoppingListRepository.insertShoppingList(shoppingList)
+                showNotification(context, "List Created", "${shoppingList.title} created")
             }
         }
     }
@@ -61,16 +65,17 @@ class ShoppingListViewModel(
     fun updateShoppingList(shoppingList: ShoppingListEntity) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-            shoppingListRepository.updateShoppingList(shoppingList)
+                shoppingListRepository.updateShoppingList(shoppingList)
             }
         }
     }
 
     // Function to delete a shopping list
-    fun deleteShoppingList(shoppingList: ShoppingListEntity) {
+    fun deleteShoppingList(shoppingList: ShoppingListEntity, context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 shoppingListRepository.deleteShoppingList(shoppingList)
+                showNotification(context, "List Deleted", "${shoppingList.title} deleted")
             }
         }
     }
@@ -82,8 +87,7 @@ class ShoppingListViewModel(
                 val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a", Locale.getDefault())
                 val currentDateAndTime = sdf.format(System.currentTimeMillis())
                 shoppingListRepository.updateLastModified(
-                    shoppingListId,
-                    lastModified = currentDateAndTime
+                    shoppingListId, lastModified = currentDateAndTime
                 )
             }
         }

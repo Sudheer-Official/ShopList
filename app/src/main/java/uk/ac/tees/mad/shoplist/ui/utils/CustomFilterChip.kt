@@ -10,15 +10,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 fun CustomFilterChip(icon: ImageVector, text: String, selected: Boolean, onClick: () -> Unit) {
     FilterChip(
         selected = selected, onClick = {
-            onClick()
-        }, label = { Text(text) }, leadingIcon = if (selected) {
-            {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = text,
-                )
-            }
-        } else {
-            null
-        })
+        onClick()
+    }, label = { Text(text) }, leadingIcon = if (selected) {
+        {
+            Icon(
+                imageVector = icon,
+                contentDescription = text,
+            )
+        }
+    } else {
+        null
+    })
 }

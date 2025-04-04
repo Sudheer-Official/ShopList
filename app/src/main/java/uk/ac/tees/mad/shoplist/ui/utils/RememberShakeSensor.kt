@@ -8,7 +8,7 @@ import android.hardware.SensorManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -23,7 +23,7 @@ fun RememberShakeSensor(
     val sensorManager =
         remember { context.getSystemService(Context.SENSOR_SERVICE) as SensorManager }
     val sensor = remember { sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) }
-    var lastShakeTimestamp by remember { mutableStateOf(0L) }
+    var lastShakeTimestamp by remember { mutableLongStateOf(0L) }
 
     val sensorListener = remember {
         object : SensorEventListener {

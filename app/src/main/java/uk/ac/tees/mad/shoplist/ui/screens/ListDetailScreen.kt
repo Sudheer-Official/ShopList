@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.shoplist.ui.screens
 
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -74,6 +76,8 @@ fun ListDetailScreen(
     val shoppingList by listDetailViewModel.shoppingList.collectAsStateWithLifecycle()
     val shoppingItems by listDetailViewModel.shoppingItems.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         listDetailViewModel.getShoppingListById(listId)
         listDetailViewModel.getShoppingItemsByListId(listId)
@@ -102,7 +106,6 @@ fun ListDetailScreen(
     }, floatingActionButton = {
         FloatingActionButton(
             onClick = {
-                /* TODO: Navigate to Add Item Screen*/
                 onAddClick(listId, listTitle)
             },
             containerColor = MaterialTheme.colorScheme.secondary,
@@ -125,7 +128,8 @@ fun ListDetailScreen(
             shoppingItems = shoppingItems,
             modifier = Modifier.padding(paddingValues),
             shoppingListViewModel = shoppingListViewModel,
-            shoppingItemViewModel = shoppingItemViewModel
+            shoppingItemViewModel = shoppingItemViewModel,
+            context = context
         )
     }
 }
@@ -136,7 +140,8 @@ fun ListDetailContent(
     shoppingItems: LoadingState<List<ShoppingItemEntity>>,
     modifier: Modifier = Modifier,
     shoppingListViewModel: ShoppingListViewModel,
-    shoppingItemViewModel: ShoppingItemViewModel
+    shoppingItemViewModel: ShoppingItemViewModel,
+    context: Context
 ) {
     when (val listState = shoppingList) {
         is LoadingState.Error -> {
@@ -198,7 +203,11 @@ fun ListDetailContent(
                     } else {
 
                         RememberShakeSensor {
-                            shoppingItemViewModel.deleteAllPurchasedItemsForList(list.id)
+                            shoppingItemViewModel.deleteAllPurchasedItemsForList(
+                                list.id,
+                                list.title,
+                                context
+                            )
                             shoppingListViewModel.updateShoppingList(
                                 list.copy(
                                     lastModified = getCurrentDateAndTime(),

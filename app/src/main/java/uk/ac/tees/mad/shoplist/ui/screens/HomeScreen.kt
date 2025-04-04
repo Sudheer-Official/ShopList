@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.shoplist.ui.screens
 
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -49,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -80,6 +82,8 @@ fun HomeScreen(
     )
     val allShoppingLists by homeViewModel.allShoppingLists.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+
     val categories = listOf("All", "Food", "Home", "Personal", "Others")
     var selectedCategory by remember { mutableStateOf("All") }
 
@@ -87,7 +91,7 @@ fun HomeScreen(
         homeViewModel.getAllShoppingLists()
     }
 
-    LaunchedEffect(selectedCategory) {
+    LaunchedEffect(selectedCategory, allShoppingLists) {
         if (selectedCategory == "All") {
             homeViewModel.getAllShoppingLists()
         } else {
@@ -133,7 +137,6 @@ fun HomeScreen(
     }, containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         ShoppingListContent(
-            //shoppingLists = sampleLists,
             shoppingLists = allShoppingLists,
             shoppingListViewModel = shoppingListViewModel,
             onListClick = onListClick,
@@ -143,7 +146,9 @@ fun HomeScreen(
             selectedCategory = selectedCategory,
             onFilterClick = {
                 selectedCategory = it
-            })
+            },
+            context = context
+        )
     }
 }
 
@@ -156,7 +161,8 @@ fun ShoppingListContent(
     modifier: Modifier = Modifier,
     categories: List<String> = emptyList(),
     selectedCategory: String = "All",
-    onFilterClick: (String) -> Unit
+    onFilterClick: (String) -> Unit,
+    context: Context
 ) {
     val haptics = LocalHapticFeedback.current
 
@@ -171,7 +177,7 @@ fun ShoppingListContent(
             onDismiss = {
             showDeleteDialog = false
         }, onConfirm = {
-            shoppingListViewModel.deleteShoppingList(longClickedList!!)
+            shoppingListViewModel.deleteShoppingList(longClickedList!!, context)
             showDeleteDialog = false
         }, shopingList = longClickedList!!
         )
@@ -273,7 +279,6 @@ fun ShoppingListContent(
                 showListActionSheet = false
                 longClickedList = null
             }, onDeleteClick = {
-                //shoppingListViewModel.deleteShoppingList(it)
                 showDeleteDialog = true
                 showListActionSheet = false
             })
@@ -284,7 +289,6 @@ fun ShoppingListContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShoppingListItem(
-    //list: ShoppingList,
     list: ShoppingListEntity, onClick: () -> Unit, onLongClick: () -> Unit
 ) {
     Card(

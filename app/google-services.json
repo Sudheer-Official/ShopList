@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1007494188423",
+    "project_id": "shoppinglist-5fdc4",
+    "storage_bucket": "shoppinglist-5fdc4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1007494188423:android:4a5a4a712e2a3633b99722",
+        "android_client_info": {
+          "package_name": "uk.ac.tees.mad.shoplist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfcuKcsUvh3QOZfJg4uZEOwzyL7oKw4Sw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

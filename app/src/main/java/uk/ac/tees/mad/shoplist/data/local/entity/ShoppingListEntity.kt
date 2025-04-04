@@ -6,8 +6,7 @@ import uk.ac.tees.mad.shoplist.ui.utils.getCurrentDateAndTime
 
 @Entity(tableName = "shopping_lists")
 data class ShoppingListEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String = "",
     val itemCount: Int = 0,
     val completedItems: Int = 0,

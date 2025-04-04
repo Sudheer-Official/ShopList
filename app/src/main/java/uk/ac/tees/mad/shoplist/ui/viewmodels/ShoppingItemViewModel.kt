@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.shoplist.ui.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -11,8 +12,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
 import uk.ac.tees.mad.shoplist.data.repository.ShoppingItemRepository
-import uk.ac.tees.mad.shoplist.data.repository.ShoppingListRepository
 import uk.ac.tees.mad.shoplist.ui.utils.LoadingState
+import uk.ac.tees.mad.shoplist.ui.utils.showNotification
 
 class ShoppingItemViewModel(
     private val shoppingItemRepository: ShoppingItemRepository
@@ -33,10 +34,15 @@ class ShoppingItemViewModel(
         }
     }
 
-    fun insertShoppingItem(shoppingItem: ShoppingItemEntity) {
+    fun insertShoppingItem(shoppingItem: ShoppingItemEntity, listTitle: String, context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 shoppingItemRepository.insertShoppingItem(shoppingItem)
+                showNotification(
+                    context,
+                    "Item Added To List",
+                    "${shoppingItem.name} added to $listTitle"
+                )
             }
         }
     }
@@ -49,18 +55,28 @@ class ShoppingItemViewModel(
         }
     }
 
-    fun deleteShoppingItem(shoppingItem: ShoppingItemEntity) {
+    fun deleteShoppingItem(shoppingItem: ShoppingItemEntity, listTitle: String, context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-            shoppingItemRepository.deleteShoppingItem(shoppingItem)
+                shoppingItemRepository.deleteShoppingItem(shoppingItem)
+                showNotification(
+                    context,
+                    "Item Deleted From List",
+                    "${shoppingItem.name} deleted from $listTitle"
+                )
             }
         }
     }
 
-    fun deleteAllPurchasedItemsForList(listId: Int) {
+    fun deleteAllPurchasedItemsForList(listId: Int, listTitle: String, context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-            shoppingItemRepository.deleteAllPurchasedItemsForList(listId)
+                shoppingItemRepository.deleteAllPurchasedItemsForList(listId)
+                showNotification(
+                    context,
+                    "Shake Detected",
+                    "All purchased items deleted from $listTitle"
+                )
             }
         }
     }

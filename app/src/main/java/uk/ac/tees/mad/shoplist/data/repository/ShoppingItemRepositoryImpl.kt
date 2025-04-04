@@ -23,7 +23,7 @@ class ShoppingItemRepositoryImpl(private val shoppingItemDao: ShoppingItemDao) :
         return shoppingItemDao.getShoppingItemsByListId(listId)
     }
 
-    override fun getAllShoppingItems(): Flow<List<ShoppingItemEntity>>{
+    override fun getAllShoppingItems(): Flow<List<ShoppingItemEntity>> {
         return shoppingItemDao.getAllShoppingItems()
     }
 

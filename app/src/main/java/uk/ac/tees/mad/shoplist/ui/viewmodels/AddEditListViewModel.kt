@@ -24,21 +24,21 @@ class AddEditListViewModel(
     fun getShoppingListById(id: Int = 0) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-            if (id == 0) {
-                _shoppingList.value = LoadingState.Success(
-                    ShoppingListEntity(
-                        title = "",
-                        itemCount = 0,
-                        completedItems = 0,
-                        lastModified = "",
-                        category = ""
+                if (id == 0) {
+                    _shoppingList.value = LoadingState.Success(
+                        ShoppingListEntity(
+                            title = "",
+                            itemCount = 0,
+                            completedItems = 0,
+                            lastModified = "",
+                            category = ""
+                        )
                     )
-                )
-            } else {
-                shoppingListRepository.getShoppingListById(id).collectLatest { shoppingList ->
-                    _shoppingList.value = LoadingState.Success(shoppingList)
+                } else {
+                    shoppingListRepository.getShoppingListById(id).collectLatest { shoppingList ->
+                        _shoppingList.value = LoadingState.Success(shoppingList)
+                    }
                 }
-            }
             }
         }
     }

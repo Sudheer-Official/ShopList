@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.shoplist.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,7 +61,6 @@ import uk.ac.tees.mad.shoplist.ui.utils.getCategoryColor
 import uk.ac.tees.mad.shoplist.ui.utils.getCurrentDateAndTime
 import uk.ac.tees.mad.shoplist.ui.viewmodels.AddEditListViewModel
 import uk.ac.tees.mad.shoplist.ui.viewmodels.ShoppingListViewModel
-import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +71,8 @@ fun AddEditListScreen(
     addEditListViewModel: AddEditListViewModel = koinViewModel<AddEditListViewModel>()
 ) {
     val shoppingList by addEditListViewModel.shoppingList.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         addEditListViewModel.getShoppingListById(listId)
@@ -105,6 +108,7 @@ fun AddEditListScreen(
             modifier = Modifier.padding(paddingValues),
             shoppingListViewModel = shoppingListViewModel,
             onBackClick = onBackClick,
+            context = context
         )
     }
 }
@@ -117,6 +121,7 @@ fun AddEditListScreenContent(
     modifier: Modifier = Modifier,
     shoppingListViewModel: ShoppingListViewModel,
     onBackClick: () -> Unit,
+    context: Context
 ) {
     when (val state = list) {
         is LoadingState.Loading -> {
@@ -226,16 +231,12 @@ fun AddEditListScreenContent(
                                 ExposedDropdownMenu(
                                     expanded = expanded, onDismissRequest = {
                                         expanded = false
-                                    }
-                                ) {
+                                    }) {
                                     categories.forEach { cat ->
-                                        DropdownMenuItem(
-                                            text = { Text(text = cat) },
-                                            onClick = {
-                                                category = cat
-                                                expanded = false
-                                            }
-                                        )
+                                        DropdownMenuItem(text = { Text(text = cat) }, onClick = {
+                                            category = cat
+                                            expanded = false
+                                        })
                                     }
                                 }
                             }
@@ -250,7 +251,7 @@ fun AddEditListScreenContent(
                                                 title = title,
                                                 category = category,
                                                 lastModified = getCurrentDateAndTime()
-                                            )
+                                            ), context = context
                                         )
                                         onBackClick()
                                     } else {

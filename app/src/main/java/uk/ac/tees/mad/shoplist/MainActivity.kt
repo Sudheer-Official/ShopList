@@ -18,9 +18,11 @@ import uk.ac.tees.mad.shoplist.ui.screens.HomeScreen
 import uk.ac.tees.mad.shoplist.ui.screens.ListDetailScreen
 import uk.ac.tees.mad.shoplist.ui.screens.SplashScreen
 import uk.ac.tees.mad.shoplist.ui.theme.ShopListTheme
+import uk.ac.tees.mad.shoplist.ui.utils.createNotificationChannel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        createNotificationChannel(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -52,38 +54,30 @@ fun AppContent() {
                 HomeScreen(onListClick = { listId, listTitle ->
                     navController.navigate(Dest.ListDetailScreen(listId, listTitle))
                 }, onAddListClick = {
-                    // TODO: Navigate to create new list
                     navController.navigate(Dest.AddEditListScreen(listId = 0))
-                }, onEditListClick = {listId ->
-                    // TODO: Navigate to edit list
+                }, onEditListClick = { listId ->
                     navController.navigate(Dest.AddEditListScreen(listId = listId))
                 })
             }
             composable<Dest.ListDetailScreen> {
                 val args = it.toRoute<Dest.ListDetailScreen>()
-                ListDetailScreen(
-                    listId = args.listId,
-                    listTitle = args.listTitle,
-                    onBackClick = {
+                ListDetailScreen(listId = args.listId, listTitle = args.listTitle, onBackClick = {
                     navController.popBackStack()
-                }, onAddClick = {listId, listTitle ->
+                }, onAddClick = { listId, listTitle ->
                     navController.navigate(Dest.AddEditItemScreen(listId, listTitle))
                 })
             }
             composable<Dest.AddEditListScreen> {
                 val args = it.toRoute<Dest.AddEditListScreen>()
                 AddEditListScreen(
-                    listId = args.listId,
-                    onBackClick = {
+                    listId = args.listId, onBackClick = {
                         navController.popBackStack()
                     })
             }
             composable<Dest.AddEditItemScreen> {
                 val args = it.toRoute<Dest.AddEditItemScreen>()
                 AddEditItemScreen(
-                    listId = args.listId,
-                    listTitle = args.listTitle,
-                    onBackClick = {
+                    listId = args.listId, listTitle = args.listTitle, onBackClick = {
                         navController.popBackStack()
                     })
             }

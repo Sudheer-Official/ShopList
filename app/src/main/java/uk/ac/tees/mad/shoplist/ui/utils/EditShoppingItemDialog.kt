@@ -18,9 +18,7 @@ import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingItemEntity
 
 @Composable
 fun EditShoppingItemDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (String, Int) -> Unit,
-    item: ShoppingItemEntity
+    onDismiss: () -> Unit, onConfirm: (String, Int) -> Unit, item: ShoppingItemEntity
 ) {
     var itemName by remember { mutableStateOf(item.name) }
     var itemQuantity by remember { mutableStateOf(item.quantity.toString()) }

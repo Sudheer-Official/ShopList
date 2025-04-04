@@ -54,9 +54,10 @@ class AddEditItemViewModel(
     fun getShoppingItemsByListId(listId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-            shoppingItemRepository.getShoppingItemsByListId(listId).collectLatest { shoppingItems ->
-                _shoppingItems.value = LoadingState.Success(shoppingItems)
-            }
+                shoppingItemRepository.getShoppingItemsByListId(listId)
+                    .collectLatest { shoppingItems ->
+                        _shoppingItems.value = LoadingState.Success(shoppingItems)
+                    }
             }
         }
     }

@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.shoplist.ui.screens
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -69,6 +71,8 @@ fun AddEditItemScreen(
 ) {
     val shoppingList by addEditItemViewModel.shoppingList.collectAsStateWithLifecycle()
     val shoppingItems by addEditItemViewModel.shoppingItems.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         addEditItemViewModel.getShoppingListById(listId)
@@ -101,7 +105,8 @@ fun AddEditItemScreen(
             shoppingItems = shoppingItems,
             modifier = Modifier.padding(paddingValues),
             shoppingItemViewModel = shoppingItemViewModel,
-            shoppingListViewModel = shoppingListViewModel
+            shoppingListViewModel = shoppingListViewModel,
+            context = context
         )
     }
 }
@@ -112,7 +117,8 @@ fun AddEditItemContent(
     shoppingItems: LoadingState<List<ShoppingItemEntity>>,
     modifier: Modifier = Modifier,
     shoppingItemViewModel: ShoppingItemViewModel,
-    shoppingListViewModel: ShoppingListViewModel
+    shoppingListViewModel: ShoppingListViewModel,
+    context: Context
 ) {
 
     when (val listState = shoppingList) {
@@ -169,7 +175,11 @@ fun AddEditItemContent(
                                     quantity = quantity,
                                     isPurchased = false
                                 )
-                                shoppingItemViewModel.insertShoppingItem(shoppingItem)
+                                shoppingItemViewModel.insertShoppingItem(
+                                    shoppingItem,
+                                    list.title,
+                                    context
+                                )
                                 shoppingListViewModel.updateShoppingList(
                                     list.copy(
                                         itemCount = list.itemCount + 1,
@@ -208,7 +218,11 @@ fun AddEditItemContent(
                             showDeleteDialog = false
                         }, onConfirm = {
                             selectedItem?.let {
-                                shoppingItemViewModel.deleteShoppingItem(it)
+                                shoppingItemViewModel.deleteShoppingItem(
+                                    it,
+                                    list.title,
+                                    context
+                                )
                                 shoppingListViewModel.updateShoppingList(
                                     list.copy(
                                         itemCount = list.itemCount - 1,
@@ -298,10 +312,6 @@ fun ItemListRow(
                     checkedColor = MaterialTheme.colorScheme.secondary
                 )
             )
-//            Icon(
-//                if(item.isPurchased) Icons.AutoMirrored.Filled.LabelOff else Icons.AutoMirrored.Filled.Label,
-//                contentDescription = "Localized description",
-//            )
         }, headlineContent = {
             Text(
                 text = item.name,

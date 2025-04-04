@@ -4,5 +4,6 @@ data class ShoppingItem(
     val id: Int,
     val name: String,
     val quantity: Int,
-    val isPurchased: Boolean
+    val isPurchased: Boolean,
+    val listId: Int // Foreign key referencing ShoppingListEntity.id
 )
