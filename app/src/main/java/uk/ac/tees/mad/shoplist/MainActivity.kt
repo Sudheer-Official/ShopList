@@ -7,8 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import uk.ac.tees.mad.shoplist.ui.navigation.Dest
 import uk.ac.tees.mad.shoplist.ui.navigation.SubGraph
@@ -16,6 +16,8 @@ import uk.ac.tees.mad.shoplist.ui.screens.AddEditItemScreen
 import uk.ac.tees.mad.shoplist.ui.screens.AddEditListScreen
 import uk.ac.tees.mad.shoplist.ui.screens.HomeScreen
 import uk.ac.tees.mad.shoplist.ui.screens.ListDetailScreen
+import uk.ac.tees.mad.shoplist.ui.screens.LogInScreen
+import uk.ac.tees.mad.shoplist.ui.screens.SignUpScreen
 import uk.ac.tees.mad.shoplist.ui.screens.SplashScreen
 import uk.ac.tees.mad.shoplist.ui.theme.ShopListTheme
 import uk.ac.tees.mad.shoplist.ui.utils.createNotificationChannel
@@ -42,11 +44,35 @@ fun AppContent() {
         navigation<SubGraph.Splash>(startDestination = Dest.SplashScreen) {
             composable<Dest.SplashScreen> {
                 SplashScreen(
-                    onSplashFinished = {
-                        navController.navigate(SubGraph.Home) {
-                            popUpTo(SubGraph.Splash) { inclusive = true }
+                    onSplashFinished = { isSignedIn ->
+                        if (isSignedIn) {
+                            navController.navigate(SubGraph.Home) {
+                                popUpTo(SubGraph.Splash) { inclusive = true }
+                            }
+                        } else {
+                            navController.navigate(SubGraph.AuthGraph) {
+                                popUpTo(SubGraph.Splash) { inclusive = true }
+                            }
                         }
                     })
+            }
+        }
+        navigation<SubGraph.AuthGraph>(startDestination = Dest.LogInScreen) {
+            composable<Dest.LogInScreen> {
+                LogInScreen(onLogIn = {
+                    navController.navigate(SubGraph.Home) {
+                        popUpTo(SubGraph.AuthGraph) { inclusive = true }
+                    }
+                }, onSignUp = {
+                    navController.navigate(Dest.SignUpScreen)
+                })
+            }
+            composable<Dest.SignUpScreen> {
+                SignUpScreen(onBackClick = {
+                    navController.popBackStack()
+                }, onSignUp = {
+                    navController.popBackStack()
+                })
             }
         }
         navigation<SubGraph.Home>(startDestination = Dest.HomeScreen) {
@@ -57,6 +83,10 @@ fun AppContent() {
                     navController.navigate(Dest.AddEditListScreen(listId = 0))
                 }, onEditListClick = { listId ->
                     navController.navigate(Dest.AddEditListScreen(listId = listId))
+                }, onLogOut = {
+                    navController.navigate(SubGraph.AuthGraph) {
+                        popUpTo(SubGraph.Home) { inclusive = true }
+                    }
                 })
             }
             composable<Dest.ListDetailScreen> {

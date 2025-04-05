@@ -4,11 +4,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import uk.ac.tees.mad.shoplist.data.repository.FirebaseAuthRepositoryImpl
+import uk.ac.tees.mad.shoplist.data.repository.FirebaseAuthRepository
 
 val firebaseModule = module {
     single { FirebaseAuth.getInstance() }
     single { FirebaseFirestore.getInstance() }
 
-    singleOf(::FirebaseAuthRepositoryImpl)
+    singleOf(::FirebaseAuthRepository)
 }

@@ -8,6 +8,9 @@ sealed class SubGraph {
     data object Splash : SubGraph()
 
     @Serializable
+    data object AuthGraph : SubGraph()
+
+    @Serializable
     data object Home : SubGraph()
 
 }
@@ -16,6 +19,12 @@ sealed class Dest {
 
     @Serializable
     data object SplashScreen : Dest()
+
+    @Serializable
+    data object LogInScreen : Dest()
+
+    @Serializable
+    data object SignUpScreen : Dest()
 
     @Serializable
     data object HomeScreen : Dest()

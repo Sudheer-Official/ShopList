@@ -25,9 +25,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.HowToReg
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -72,6 +77,7 @@ fun HomeScreen(
     onListClick: (Int, String) -> Unit,
     onAddListClick: () -> Unit,
     onEditListClick: (Int) -> Unit,
+    onLogOut: () -> Unit,
     shoppingListViewModel: ShoppingListViewModel = koinViewModel<ShoppingListViewModel>(),
     homeViewModel: HomeViewModel = koinViewModel<HomeViewModel>()
 ) {
@@ -117,6 +123,26 @@ fun HomeScreen(
                 containerColor = MaterialTheme.colorScheme.primary,
                 titleContentColor = MaterialTheme.colorScheme.onPrimary
             ),
+            actions = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary
+                    ),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    onClick = {
+                        homeViewModel.logOut()
+                        onLogOut()
+                    }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Logout,
+                        contentDescription = "Log Out",
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Log Out")
+                }
+            }
         )
     }, floatingActionButton = {
         FloatingActionButton(

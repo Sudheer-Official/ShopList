@@ -2,6 +2,7 @@ package uk.ac.tees.mad.shoplist.ui.screens
 
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -203,11 +204,7 @@ fun ListDetailContent(
                     } else {
 
                         RememberShakeSensor {
-                            shoppingItemViewModel.deleteAllPurchasedItemsForList(
-                                list.id,
-                                list.title,
-                                context
-                            )
+                            shoppingItemViewModel.deleteAllPurchasedItemsForList(list.id)
                             shoppingListViewModel.updateShoppingList(
                                 list.copy(
                                     lastModified = getCurrentDateAndTime(),
@@ -215,6 +212,9 @@ fun ListDetailContent(
                                     completedItems = 0
                                 )
                             )
+                            Toast.makeText(
+                                context, "Shake Detected", Toast.LENGTH_SHORT
+                            ).show()
                         }
 
                         LazyColumn(

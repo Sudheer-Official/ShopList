@@ -10,10 +10,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
+import uk.ac.tees.mad.shoplist.data.repository.FirebaseAuthRepository
 import uk.ac.tees.mad.shoplist.data.repository.ShoppingListRepository
 
 class HomeViewModel(
-    private val shoppingListRepository: ShoppingListRepository
+    private val shoppingListRepository: ShoppingListRepository,
+    private val firebaseAuthRepository: FirebaseAuthRepository
 ) : ViewModel() {
     init {
         getAllShoppingLists()
@@ -44,5 +46,9 @@ class HomeViewModel(
                     }
             }
         }
+    }
+
+    fun logOut() {
+        firebaseAuthRepository.signOut()
     }
 }

@@ -39,9 +39,7 @@ class ShoppingItemViewModel(
             withContext(Dispatchers.IO) {
                 shoppingItemRepository.insertShoppingItem(shoppingItem)
                 showNotification(
-                    context,
-                    "Item Added To List",
-                    "${shoppingItem.name} added to $listTitle"
+                    context, "Item Added To List", "${shoppingItem.name} added to $listTitle"
                 )
             }
         }
@@ -68,15 +66,10 @@ class ShoppingItemViewModel(
         }
     }
 
-    fun deleteAllPurchasedItemsForList(listId: Int, listTitle: String, context: Context) {
+    fun deleteAllPurchasedItemsForList(listId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 shoppingItemRepository.deleteAllPurchasedItemsForList(listId)
-                showNotification(
-                    context,
-                    "Shake Detected",
-                    "All purchased items deleted from $listTitle"
-                )
             }
         }
     }
