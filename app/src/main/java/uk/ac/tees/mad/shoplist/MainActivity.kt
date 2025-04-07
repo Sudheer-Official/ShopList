@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
+import org.koin.android.ext.android.inject
+import uk.ac.tees.mad.shoplist.data.remote.synchronizer.ShopListSynchronizer
 import uk.ac.tees.mad.shoplist.ui.navigation.Dest
 import uk.ac.tees.mad.shoplist.ui.navigation.SubGraph
 import uk.ac.tees.mad.shoplist.ui.screens.AddEditItemScreen
@@ -23,20 +25,21 @@ import uk.ac.tees.mad.shoplist.ui.theme.ShopListTheme
 import uk.ac.tees.mad.shoplist.ui.utils.createNotificationChannel
 
 class MainActivity : ComponentActivity() {
+    val shopListSynchronizer: ShopListSynchronizer by inject()
     override fun onCreate(savedInstanceState: Bundle?) {
         createNotificationChannel(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ShopListTheme {
-                AppContent()
+                AppContent(shopListSynchronizer)
             }
         }
     }
 }
 
 @Composable
-fun AppContent() {
+fun AppContent(shopListSynchronizer: ShopListSynchronizer) {
 
     val navController = rememberNavController()
 
@@ -46,6 +49,7 @@ fun AppContent() {
                 SplashScreen(
                     onSplashFinished = { isSignedIn ->
                         if (isSignedIn) {
+                            shopListSynchronizer.startSync()
                             navController.navigate(SubGraph.Home) {
                                 popUpTo(SubGraph.Splash) { inclusive = true }
                             }
@@ -59,7 +63,9 @@ fun AppContent() {
         }
         navigation<SubGraph.AuthGraph>(startDestination = Dest.LogInScreen) {
             composable<Dest.LogInScreen> {
-                LogInScreen(onLogIn = {
+                LogInScreen(
+                    shopListSynchronizer = shopListSynchronizer,
+                    onLogIn = {
                     navController.navigate(SubGraph.Home) {
                         popUpTo(SubGraph.AuthGraph) { inclusive = true }
                     }

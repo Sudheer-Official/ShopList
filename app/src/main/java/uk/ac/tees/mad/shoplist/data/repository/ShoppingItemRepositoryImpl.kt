@@ -19,15 +19,38 @@ class ShoppingItemRepositoryImpl(private val shoppingItemDao: ShoppingItemDao) :
         shoppingItemDao.delete(shoppingItem)
     }
 
-    override fun getShoppingItemsByListId(listId: Int): Flow<List<ShoppingItemEntity>> {
-        return shoppingItemDao.getShoppingItemsByListId(listId)
+    override fun getShoppingItemsByListIdForUser(
+        userId: String,
+        listId: Int
+    ): Flow<List<ShoppingItemEntity>> {
+        return shoppingItemDao.getShoppingItemsByListIdForUser(userId, listId)
     }
 
-    override fun getAllShoppingItems(): Flow<List<ShoppingItemEntity>> {
-        return shoppingItemDao.getAllShoppingItems()
+    override fun getItemsForSync(listId: Int): Flow<List<ShoppingItemEntity>> {
+        return shoppingItemDao.getItemsForSync(listId)
     }
 
-    override suspend fun deleteAllPurchasedItemsForList(listId: Int) {
-        shoppingItemDao.deleteAllPurchasedItemsForList(listId)
+    override suspend fun updateFirestoreId(id: Int, firestoreId: String) {
+        return shoppingItemDao.updateFirestoreId(id, firestoreId)
     }
+
+    override suspend fun markAsDeletedOnAllPurchasedItemsForListForUser(
+        userId: String,
+        listId: Int
+    ) {
+        return shoppingItemDao.markAsDeletedOnAllPurchasedItemsForListForUser(userId, listId)
+    }
+
+    override fun getAllShoppingItemsForUser(userId: String): Flow<List<ShoppingItemEntity>> {
+        return shoppingItemDao.getAllShoppingItemsForUser(userId)
+    }
+
+    override fun getShoppingItemByFirestoreId(userId: String, firestoreId: String): Flow<ShoppingItemEntity?> {
+        return shoppingItemDao.getShoppingItemByFirestoreId(userId, firestoreId)
+    }
+
+    override suspend fun updateAllItemsListFirestoreId(firestoreId: String, listFirestoreId: String) {
+        return shoppingItemDao.updateAllItemsListFirestoreId( firestoreId , listFirestoreId)
+    }
+
 }

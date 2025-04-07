@@ -81,11 +81,6 @@ fun HomeScreen(
     shoppingListViewModel: ShoppingListViewModel = koinViewModel<ShoppingListViewModel>(),
     homeViewModel: HomeViewModel = koinViewModel<HomeViewModel>()
 ) {
-    listOf(
-        ShoppingList(1, "Weekly Groceries", 8, 2, "Mar 22, 2025", "Food"),
-        ShoppingList(2, "Hardware Supplies", 5, 0, "Mar 21, 2025", "Home"),
-        ShoppingList(3, "Gift Shopping", 3, 1, "Mar 20, 2025", "Personal")
-    )
     val allShoppingLists by homeViewModel.allShoppingLists.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
@@ -94,7 +89,7 @@ fun HomeScreen(
     var selectedCategory by remember { mutableStateOf("All") }
 
     LaunchedEffect(Unit) {
-        homeViewModel.getAllShoppingLists()
+        homeViewModel.fetchUserDetails()
     }
 
     LaunchedEffect(selectedCategory, allShoppingLists) {

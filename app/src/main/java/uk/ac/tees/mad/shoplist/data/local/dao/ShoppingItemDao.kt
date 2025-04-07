@@ -20,12 +20,24 @@ interface ShoppingItemDao {
     @Delete
     suspend fun delete(shoppingItem: ShoppingItemEntity)
 
-    @Query("SELECT * FROM shopping_items WHERE listId = :listId")
-    fun getShoppingItemsByListId(listId: Int): Flow<List<ShoppingItemEntity>>
+    @Query("SELECT * FROM shopping_items WHERE userId = :userId AND listId = :listId AND isDeleted = 0 ORDER BY isPurchased ASC")
+    fun getShoppingItemsByListIdForUser(userId: String, listId: Int): Flow<List<ShoppingItemEntity>>
 
-    @Query("SELECT * FROM shopping_items")
-    fun getAllShoppingItems(): Flow<List<ShoppingItemEntity>>
+    @Query("SELECT * FROM shopping_items WHERE (firestoreId ='' OR needsUpdate = 1 OR isDeleted= 1 OR firestoreId = '') AND listId = :listId")
+    fun getItemsForSync(listId: Int): Flow<List<ShoppingItemEntity>>
 
-    @Query("DELETE FROM shopping_items WHERE isPurchased = 1 AND listId = :listId")
-    fun deleteAllPurchasedItemsForList(listId: Int)
+    @Query("UPDATE shopping_items SET firestoreId = :firestoreId WHERE id = :id")
+    suspend fun updateFirestoreId(id: Int, firestoreId: String)
+
+    @Query("UPDATE shopping_items SET listFirestoreId = :listFirestoreId WHERE firestoreId = :firestoreId")
+    suspend fun updateAllItemsListFirestoreId( firestoreId: String, listFirestoreId: String)
+
+    @Query("UPDATE shopping_items SET isDeleted = 1 WHERE userId = :userId AND listId = :listId AND isPurchased = 1")
+    suspend fun markAsDeletedOnAllPurchasedItemsForListForUser(userId: String, listId: Int)
+
+    @Query("SELECT * FROM shopping_items WHERE userId = :userId")
+    fun getAllShoppingItemsForUser(userId: String): Flow<List<ShoppingItemEntity>>
+
+    @Query("SELECT * FROM shopping_items WHERE userId = :userId AND firestoreId = :firestoreId")
+    fun getShoppingItemByFirestoreId(userId: String, firestoreId: String): Flow<ShoppingItemEntity?>
 }

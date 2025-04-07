@@ -80,6 +80,7 @@ fun ListDetailScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
+        listDetailViewModel.fetchUserDetails()
         listDetailViewModel.getShoppingListById(listId)
         listDetailViewModel.getShoppingItemsByListId(listId)
     }
@@ -246,7 +247,9 @@ fun ListDetailContent(
                                             )
                                         )
                                         shoppingItemViewModel.updateShoppingItem(
-                                            shoppingItem.copy(isPurchased = isChecked)
+                                            shoppingItem.copy(
+                                                isPurchased = isChecked
+                                            )
                                         )
                                     })
                             }

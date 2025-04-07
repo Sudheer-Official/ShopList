@@ -62,11 +62,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import uk.ac.tees.mad.shoplist.R
 import uk.ac.tees.mad.shoplist.data.remote.FirebaseAuthResult
+import uk.ac.tees.mad.shoplist.data.remote.synchronizer.ShopListSynchronizer
 import uk.ac.tees.mad.shoplist.ui.viewmodels.LogInViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogInScreen(
+    shopListSynchronizer: ShopListSynchronizer,
     onLogIn: () -> Unit,
     onSignUp: () -> Unit,
     logInViewModel: LogInViewModel = koinViewModel<LogInViewModel>()
@@ -166,8 +168,8 @@ fun LogInScreen(
                 }
 
                 is FirebaseAuthResult.Success -> {
+                    shopListSynchronizer.startSync()
                     onLogIn()
-
                 }
 
                 is FirebaseAuthResult.Error -> {

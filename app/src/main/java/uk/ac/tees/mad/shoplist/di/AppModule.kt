@@ -8,4 +8,4 @@ val appModule = module {
     includes(viewModelModule)
 }
 
-val appModules = listOf(appModule, databaseModule, viewModelModule, firebaseModule)
+val appModules = listOf(appModule,firebaseModule, databaseModule, viewModelModule)

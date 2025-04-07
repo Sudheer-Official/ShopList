@@ -75,9 +75,11 @@ fun AddEditItemScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
+        addEditItemViewModel.fetchUserDetails()
         addEditItemViewModel.getShoppingListById(listId)
         addEditItemViewModel.getShoppingItemsByListId(listId)
     }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -198,7 +200,8 @@ fun AddEditItemContent(
                             selectedItem?.let {
                                 shoppingItemViewModel.updateShoppingItem(
                                     it.copy(
-                                        name = name, quantity = quantity
+                                        name = name,
+                                        quantity = quantity
                                     )
                                 )
                                 shoppingListViewModel.updateShoppingList(
@@ -273,7 +276,9 @@ fun AddEditItemContent(
                                     )
                                 )
                                 shoppingItemViewModel.updateShoppingItem(
-                                    shoppingItem.copy(isPurchased = isChecked)
+                                    shoppingItem.copy(
+                                        isPurchased = isChecked
+                                    )
                                 )
                             }, onEditClick = { item ->
                                 selectedItem = item

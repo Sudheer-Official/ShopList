@@ -19,19 +19,27 @@ class ShoppingListRepositoryImpl(private val shoppingListDao: ShoppingListDao) :
         shoppingListDao.delete(shoppingList)
     }
 
-    override fun getAllShoppingLists(): Flow<List<ShoppingListEntity>> {
-        return shoppingListDao.getAllShoppingLists()
+    override fun getAllShoppingListsForUser(userId: String): Flow<List<ShoppingListEntity>> {
+        return shoppingListDao.getAllShoppingListsForUser(userId)
     }
 
     override fun getShoppingListById(id: Int): Flow<ShoppingListEntity> {
         return shoppingListDao.getShoppingListById(id)
     }
 
-    override suspend fun updateLastModified(id: Int, lastModified: String) {
-        shoppingListDao.updateLastModified(id, lastModified)
+    override fun getShoppingListsByCategoryForUser(
+        userId: String,
+        category: String
+    ): Flow<List<ShoppingListEntity>> {
+        return shoppingListDao.getShoppingListsByCategoryForUser(userId, category)
     }
 
-    override fun getShoppingListsByCategory(category: String): Flow<List<ShoppingListEntity>> {
-        return shoppingListDao.getShoppingListsByCategory(category)
+    override fun getListsForSync(): Flow<List<ShoppingListEntity>> {
+        return shoppingListDao.getListsForSync()
     }
+
+    override suspend fun updateFirestoreId(id: Int, firestoreId: String) {
+        shoppingListDao.updateFirestoreId(id, firestoreId)
+    }
+
 }

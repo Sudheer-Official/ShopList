@@ -7,8 +7,9 @@ interface ShoppingListRepository {
     suspend fun insertShoppingList(shoppingList: ShoppingListEntity)
     suspend fun updateShoppingList(shoppingList: ShoppingListEntity)
     suspend fun deleteShoppingList(shoppingList: ShoppingListEntity)
-    fun getAllShoppingLists(): Flow<List<ShoppingListEntity>>
+    fun getAllShoppingListsForUser(userId: String): Flow<List<ShoppingListEntity>>
     fun getShoppingListById(id: Int): Flow<ShoppingListEntity>
-    suspend fun updateLastModified(id: Int, lastModified: String)
-    fun getShoppingListsByCategory(category: String): Flow<List<ShoppingListEntity>>
+    fun getShoppingListsByCategoryForUser(userId: String, category: String): Flow<List<ShoppingListEntity>>
+    fun getListsForSync(): Flow<List<ShoppingListEntity>>
+    suspend fun updateFirestoreId(id: Int, firestoreId: String)
 }

@@ -8,31 +8,59 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import uk.ac.tees.mad.shoplist.data.local.entity.ShoppingListEntity
+import uk.ac.tees.mad.shoplist.data.remote.FirebaseAuthResult
+import uk.ac.tees.mad.shoplist.data.remote.UserData
+import uk.ac.tees.mad.shoplist.data.remote.UserDetails
+import uk.ac.tees.mad.shoplist.data.repository.FirebaseAuthRepository
+import uk.ac.tees.mad.shoplist.data.repository.FirestoreRepository
 import uk.ac.tees.mad.shoplist.data.repository.ShoppingListRepository
 import uk.ac.tees.mad.shoplist.ui.utils.showNotification
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class ShoppingListViewModel(
-    private val shoppingListRepository: ShoppingListRepository
+    private val shoppingListRepository: ShoppingListRepository,
+    private val firebaseAuthRepository: FirebaseAuthRepository,
 ) : ViewModel() {
-
-    init {
-        getAllShoppingLists()
-    }
 
     private val _allShoppingLists = MutableStateFlow<List<ShoppingListEntity>>(emptyList())
     val allShoppingLists: StateFlow<List<ShoppingListEntity>> = _allShoppingLists.asStateFlow()
 
+    private val _userDetails = MutableStateFlow<FirebaseAuthResult<UserDetails>>(FirebaseAuthResult.Loading)
+    val userDetails: StateFlow<FirebaseAuthResult<UserDetails>> = _userDetails.asStateFlow()
+
+    private val _userData = MutableStateFlow(UserData())
+    val userData: StateFlow<UserData> = _userData.asStateFlow()
+
+    init {
+        fetchUserDetails()
+    }
+
+    fun fetchUserDetails() {
+        viewModelScope.launch {
+            firebaseAuthRepository.getCurrentUserDetails().collect { result ->
+                _userDetails.value = result
+                if (result is FirebaseAuthResult.Success) {
+                    _userData.update {
+                        it.copy(
+                            userDetails = result.data, userId = firebaseAuthRepository.getCurrentUserId()
+                        )
+                    }
+                    getAllShoppingLists(userData.value.userId.toString())
+                }
+            }
+        }
+    }
 
     // Function to retrieve all shopping lists
-    fun getAllShoppingLists() {
+    fun getAllShoppingLists(userId: String= userData.value.userId.toString()) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                shoppingListRepository.getAllShoppingLists().collectLatest { shoppingLists ->
+                shoppingListRepository.getAllShoppingListsForUser(userId).collectLatest { shoppingLists ->
                     _allShoppingLists.value = shoppingLists
                 }
             }
@@ -40,10 +68,10 @@ class ShoppingListViewModel(
     }
 
     // Function to retrieve shopping lists by category
-    fun getShoppingListsByCategory(category: String) {
+    fun getShoppingListsByCategory(category: String, userId: String = userData.value.userId.toString()) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                shoppingListRepository.getShoppingListsByCategory(category)
+                shoppingListRepository.getShoppingListsByCategoryForUser(userId,category)
                     .collectLatest { shoppingLists ->
                         _allShoppingLists.value = shoppingLists
                     }
@@ -52,10 +80,10 @@ class ShoppingListViewModel(
     }
 
     // Function to insert a new shopping list
-    fun insertShoppingList(shoppingList: ShoppingListEntity, context: Context) {
+    fun insertShoppingList(shoppingList: ShoppingListEntity, context: Context,userId: String = userData.value.userId.toString()) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                shoppingListRepository.insertShoppingList(shoppingList)
+                shoppingListRepository.insertShoppingList(shoppingList.copy(userId = userId))
                 showNotification(context, "List Created", "${shoppingList.title} created")
             }
         }
@@ -65,7 +93,7 @@ class ShoppingListViewModel(
     fun updateShoppingList(shoppingList: ShoppingListEntity) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                shoppingListRepository.updateShoppingList(shoppingList)
+                shoppingListRepository.updateShoppingList(shoppingList.copy(needsUpdate = true))
             }
         }
     }
@@ -74,21 +102,8 @@ class ShoppingListViewModel(
     fun deleteShoppingList(shoppingList: ShoppingListEntity, context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                shoppingListRepository.deleteShoppingList(shoppingList)
+                shoppingListRepository.updateShoppingList(shoppingList.copy(isDeleted = true))
                 showNotification(context, "List Deleted", "${shoppingList.title} deleted")
-            }
-        }
-    }
-
-    // Function to update last modified date of a shopping list
-    fun updateLastModified(shoppingListId: Int) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val sdf = SimpleDateFormat("MMMM d, yyyy | hh:mm a", Locale.getDefault())
-                val currentDateAndTime = sdf.format(System.currentTimeMillis())
-                shoppingListRepository.updateLastModified(
-                    shoppingListId, lastModified = currentDateAndTime
-                )
             }
         }
     }

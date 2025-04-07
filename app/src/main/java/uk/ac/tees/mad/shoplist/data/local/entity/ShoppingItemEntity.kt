@@ -15,8 +15,13 @@ import androidx.room.PrimaryKey
 )
 data class ShoppingItemEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    var firestoreId: String = "",
+    val userId: String = "",
     val name: String = "",
     val quantity: Int = 1,
     val isPurchased: Boolean = false,
-    val listId: Int // Foreign key referencing ShoppingListEntity.id
+    val listId: Int, // Foreign key referencing ShoppingListEntity.id
+    val listFirestoreId: String = "",
+    val isDeleted: Boolean = false,
+    val needsUpdate: Boolean = false
 )
